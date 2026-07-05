@@ -45,10 +45,12 @@
   .legend .item{display:flex;align-items:center;gap:.4rem;}
   .swatch{width:16px;height:16px;border-radius:4px;flex:none;}
 
-  /* info banner */
-  .infobox{background:var(--navy);color:#e2e8f0;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.1rem;font-size:.88rem;line-height:1.55;}
-  .infobox b{color:#fff;}
-  .infobox .tag{display:inline-block;background:var(--purple);color:#fff;border-radius:6px;padding:.1rem .5rem;font-size:.75rem;font-weight:700;margin-left:.3rem;}
+  /* filter bar */
+  .filterbar{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.7rem .9rem;margin-bottom:1rem;font-size:.85rem;}
+  .filterbar label{color:var(--muted);font-weight:600;}
+  .filterbar select{padding:.4rem .6rem;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:.85rem;}
+  .filterbar button{padding:.45rem .9rem;border:none;border-radius:8px;background:var(--purple);color:#fff;font-weight:600;font-size:.85rem;cursor:pointer;}
+  .filterbar button.ghost{background:none;color:var(--muted);text-decoration:underline;padding:.45rem .3rem;}
 
   /* week table */
   .weekrow{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:.7rem;overflow:hidden;}
@@ -125,10 +127,12 @@
       <div class="item"><span class="swatch" style="background:var(--marlies-afwijking)"></span>Marlies (afwijking van rotatie)</div>
     </div>
 
-    <div class="infobox">
-      Basisregeling (ouderschapsovereenkomst 5/12/2025): <b>even week → Marlies</b>, <b>oneven week → Stijn</b>. Wissel op maandagochtend na school / 9u op schoolvrije dag.<br>
-      Vanaf <b>maandag 4 januari 2027</b> wordt dit omgedraaid: <b>even week → Stijn</b>, <b>oneven week → Marlies</b><span class="tag">nieuwe regeling</span>.<br>
-      Herfst- &amp; krokusverlof volgen een eigen splitsing (wissel op woensdagmiddag) volgens de ouderschapsovereenkomst — zie de betreffende weken hieronder. Reizen/kampen uit de zomerplanning staan als info-label, zonder de gewone beurtrol te wijzigen.
+    <div class="filterbar">
+      <label for="jumpMonth">Ga naar</label>
+      <select id="jumpMonth"></select>
+      <select id="jumpYear"></select>
+      <button onclick="jumpToMonth()">Spring</button>
+      <button class="ghost" onclick="jumpToToday()">← Vandaag</button>
     </div>
 
     <div id="weeks"></div>
@@ -300,56 +304,93 @@ function loadMoreWeeks(n){
   }
 }
 
+function startFrom(monday){
+  document.getElementById('weeks').innerHTML='';
+  cursor=monday;
+  loadMoreWeeks(14);
+}
+
 function initTimeline(){
   const today=new Date(); today.setHours(0,0,0,0);
   const lastWeek=new Date(today); lastWeek.setDate(today.getDate()-7);
-  cursor=mondayOf(lastWeek);
-  loadMoreWeeks(14);
+  startFrom(mondayOf(lastWeek));
 
   const sentinel=document.getElementById('sentinel');
   const io=new IntersectionObserver((entries)=>{
     entries.forEach(e=>{ if(e.isIntersecting) loadMoreWeeks(8); });
   }, {rootMargin:'400px'});
   io.observe(sentinel);
+
+  initJumpFilter();
+}
+
+/* ============ MAAND/JAAR SPRONG ============ */
+function initJumpFilter(){
+  const today=new Date();
+  const monthSel=document.getElementById('jumpMonth');
+  const yearSel=document.getElementById('jumpYear');
+  const MAANDEN_VOL=['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
+  monthSel.innerHTML = MAANDEN_VOL.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
+  monthSel.value = today.getMonth();
+  const startYear = today.getFullYear()-1;
+  const endYear = today.getFullYear()+3;
+  let yearOpts='';
+  for(let y=startYear;y<=endYear;y++) yearOpts += `<option value="${y}">${y}</option>`;
+  yearSel.innerHTML = yearOpts;
+  yearSel.value = today.getFullYear();
+}
+function jumpToMonth(){
+  const m=parseInt(document.getElementById('jumpMonth').value,10);
+  const y=parseInt(document.getElementById('jumpYear').value,10);
+  const target=mondayOf(new Date(y,m,1));
+  startFrom(target);
+  document.getElementById('view-tijdlijn').scrollIntoView({behavior:'instant',block:'start'});
+}
+function jumpToToday(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const lastWeek=new Date(today); lastWeek.setDate(today.getDate()-7);
+  startFrom(mondayOf(lastWeek));
+  document.getElementById('jumpMonth').value = today.getMonth();
+  document.getElementById('jumpYear').value = today.getFullYear();
 }
 
 /* ============ LOG ============ */
 const LOG = [
   {
     date:'2025-12-05',
-    title:'Ondertekening ouderschapsovereenkomst',
-    q:'Basisafspraak tussen Stijn en Marlies over verblijfsregeling, kerst/nieuwjaar, financiën en gezag.',
-    a:'Week-week-regeling: <b>even week bij Marlies</b>, <b>oneven week bij Stijn</b>, wissel maandagochtend na school / 9u op schoolvrije dag. Kerstavond/kerstdag en oudjaar/nieuwjaar volgens vaste beurtrol per even/oneven kalenderjaar. Herfst- en krokusverlof volgen een aparte splitsing met wissel op woensdagmiddag, afhankelijk van de week waarin de vrijdag vóór de vakantie valt.'
+    title:'Hoe we de weken verdelen',
+    q:'Papa en mama hebben samen afgesproken hoe de weken verdeeld worden.',
+    a:'Om de week ben je bij mama, en om de week bij papa. Voor kerstvakantie, herfstvakantie en krokusvakantie zijn er eigen afspraken — die zie je hieronder en op de tijdlijn.'
   },
   {
     date:'2026-06-29',
-    title:'Zomerplanning 2026',
-    q:'Gezamenlijk overleg tussen Stijn en Marlies over reizen en kampen tijdens de zomervakantie 2026 — geen wijziging van de gewone week-week-rotatie, enkel planning van wie wanneer op reis/kamp is.',
-    a:'Afgesproken: Mama, Robbe &amp; Lore op reis (7–15 juli) · Papa, Robbe &amp; Lore op reis (25 juli–2 augustus) · Lore op turnkamp (8–13 augustus) · Papa op reis (8–16 augustus) · Lore op kamp (17–30 augustus) · Robbe op kamp (18–28 augustus). Deze periodes staan als info op de tijdlijn, zonder de normale beurtrol te wijzigen.'
+    title:'Plannen voor de zomer 2026',
+    q:'Papa en mama plannen samen wie er wanneer met jullie op reis of op kamp gaat deze zomer.',
+    a:'Mama gaat met jullie op reis (7–15 juli) · papa gaat met jullie op reis (25 juli–2 augustus) · Lore gaat op turnkamp (8–13 augustus) · papa gaat op reis (8–16 augustus) · Lore gaat op kamp (17–30 augustus) · Robbe gaat op kamp (18–28 augustus). Je gewone weekritme blijft hetzelfde, dit is enkel om te tonen wanneer wie op reis of kamp is.'
   },
   {
     date:'2026-12-21',
-    title:'Skivakantie kerst 2026',
-    q:'<b>Vraag van Stijn:</b> mag ik met Robbe en Lore op skivakantie tijdens het kerstverlof, buiten de normale week-week-rotatie om?',
-    a:'Stijn en de kinderen op skivakantie in St. Anton van <b>21 t.e.m. 27 december 2026</b> (incl. kerstavond/kerstdag, conform de bestaande beurtrol voor even jaren). Nadien normale rotatie hervat; oudjaar/nieuwjaar (31/12–3/1) bij Marlies volgens de afspraak voor even jaren.'
+    title:'Skivakantie met papa',
+    q:'Papa vroeg of hij met jullie op skivakantie mag tijdens het kerstverlof.',
+    a:'Papa gaat met jullie skiën in St. Anton, van 21 tot en met 27 december 2026. Daarna gaat het gewone ritme gewoon verder.'
   },
   {
     date:'2027-01-04',
-    title:'Omwisseling even/oneven regeling',
-    q:'<b>Vraag van Marlies:</b> kunnen we de week-week-regeling omdraaien, zodat Stijn de even weken heeft en Marlies de oneven weken (in plaats van omgekeerd)?',
-    a:'Vanaf <b>maandag 4 januari 2027</b> geldt: <b>even week bij Stijn</b>, <b>oneven week bij Marlies</b>. Verder ongewijzigd (wisseldag, vakantieregeling, financiën).'
+    title:'De weken worden omgewisseld',
+    q:'Mama vroeg om de weken om te wisselen: papa krijgt de even weken, mama de oneven weken.',
+    a:'Vanaf maandag 4 januari 2027 ben je in de even weken bij papa en in de oneven weken bij mama.'
   },
   {
     date:'2027-01-15',
-    title:'Weekendwissel januari 2027',
-    q:'<b>Vraag van Marlies:</b> kan ik het weekend van 15–17 januari 2027 krijgen (normaal het weekend van Stijn)?',
-    a:'Marlies neemt het weekend van <b>15–17 januari 2027</b>. Stijn krijgt als compensatie het weekend van <b>22–24 januari 2027</b>.'
+    title:'Weekend geruild — januari 2027',
+    q:'Mama vroeg om het weekend van 15–17 januari 2027 met jullie door te brengen.',
+    a:'Je bent dat weekend bij mama. Om het weer eerlijk te maken, ben je het weekend van 22–24 januari 2027 extra bij papa.'
   },
   {
     date:'2027-07-02',
-    title:'Weekendwissel juli 2027',
-    q:'<b>Vraag van Marlies:</b> kan ik het weekend van 2–4 juli 2027 krijgen (normaal het weekend van Stijn)?',
-    a:'Marlies neemt het weekend van <b>2–4 juli 2027</b>. Stijn krijgt als compensatie het weekend van <b>9–11 juli 2027</b>.'
+    title:'Weekend geruild — juli 2027',
+    q:'Mama vroeg om het weekend van 2–4 juli 2027 met jullie door te brengen.',
+    a:'Je bent dat weekend bij mama. Om het weer eerlijk te maken, ben je het weekend van 9–11 juli 2027 extra bij papa.'
   },
 ];
 
