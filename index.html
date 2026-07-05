@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kindregeling — Stijn &amp; Marlies</title>
+<style>
+  :root{
+    --stijn:#dbeafe; --stijn-border:#2563eb; --stijn-text:#1e3a8a;
+    --marlies:#fce7f3; --marlies-border:#db2777; --marlies-text:#831843;
+    --marlies-gevraagd:#ec4899; --stijn-compensatie:#bfdbfe;
+    --vakantie:#bbf7d0; --vakantie-border:#15803d;
+    --navy:#0f172a; --navy2:#111827; --purple:#7c3aed;
+    --bg:#f8fafc; --card:#ffffff; --text:#1e293b; --muted:#64748b; --border:#e2e8f0;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);}
+
+  /* ---------- password gate ---------- */
+  #gate{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#0f0f11;font-family:system-ui}
+  #gate .logo{font-size:1.8rem;font-weight:800;color:#fff;margin-bottom:2rem}
+  #gate .box{background:#1a1a1f;border:1px solid #2a2a32;border-radius:16px;padding:2.5rem;width:360px;text-align:center}
+  #gate h2{color:#fff;margin:0 0 1rem}
+  #gate input{width:100%;padding:.85rem;border:1px solid #333;border-radius:10px;background:#111;color:#fff;font-size:1rem;margin-bottom:1rem;outline:none}
+  #gate button{width:100%;padding:.85rem;background:#6366f1;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer}
+  #gate .back{margin-top:1rem;font-size:.8rem;color:#666}
+  #gate .back a{color:#6366f1}
+
+  /* ---------- app shell ---------- */
+  #app{display:none;max-width:960px;margin:0 auto;padding:1.25rem 1rem 4rem;}
+  header.top{display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;}
+  header.top h1{font-size:1.3rem;margin:0;}
+  header.top .who{font-size:.85rem;color:var(--muted);margin-left:auto;}
+
+  nav.tabs{display:flex;gap:.5rem;margin-bottom:1.25rem;border-bottom:1px solid var(--border);}
+  nav.tabs button{background:none;border:none;padding:.7rem 1.1rem;font-size:.95rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;}
+  nav.tabs button.active{color:var(--navy);border-bottom-color:var(--purple);}
+
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* legend */
+  .legend{display:flex;flex-wrap:wrap;gap:.9rem;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.9rem 1.1rem;margin-bottom:1rem;font-size:.82rem;}
+  .legend .item{display:flex;align-items:center;gap:.4rem;}
+  .swatch{width:16px;height:16px;border-radius:4px;flex:none;}
+
+  /* info banner */
+  .infobox{background:var(--navy);color:#e2e8f0;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.1rem;font-size:.88rem;line-height:1.55;}
+  .infobox b{color:#fff;}
+  .infobox .tag{display:inline-block;background:var(--purple);color:#fff;border-radius:6px;padding:.1rem .5rem;font-size:.75rem;font-weight:700;margin-left:.3rem;}
+
+  /* week table */
+  .weekrow{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:.7rem;overflow:hidden;}
+  .weekrow.cutover{border:2px solid var(--purple);}
+  .weekhead{display:flex;justify-content:space-between;align-items:center;background:var(--navy2);color:#fff;padding:.5rem .9rem;font-size:.8rem;}
+  .weekhead .wk{font-weight:700;}
+  .weekhead .tag{font-weight:700;padding:.1rem .5rem;border-radius:5px;font-size:.72rem;}
+  .tag.stijn{background:var(--stijn);color:var(--stijn-text);}
+  .tag.marlies{background:var(--marlies);color:var(--marlies-text);}
+  .days{display:grid;grid-template-columns:repeat(7,1fr);}
+  .day{padding:.5rem .4rem;min-height:64px;border-right:1px solid rgba(0,0,0,.05);font-size:.78rem;position:relative;}
+  .day:last-child{border-right:none;}
+  .day .dname{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
+  .day .dnum{font-weight:700;font-size:.95rem;}
+  .day .lbl{display:block;margin-top:.2rem;font-size:.68rem;line-height:1.2;}
+  .day.today{outline:2px solid var(--navy);outline-offset:-2px;}
+
+  .day.stijn-normaal{background:var(--stijn);}
+  .day.marlies-normaal{background:var(--marlies);}
+  .day.stijn-compensatie{background:var(--stijn-compensatie);border-top:3px solid var(--stijn-border);border-bottom:3px solid var(--stijn-border);}
+  .day.marlies-gevraagd{background:var(--marlies-gevraagd);color:#fff;border-top:3px solid var(--marlies-border);border-bottom:3px solid var(--marlies-border);}
+  .day.vakantie{background:var(--vakantie);border-top:3px solid var(--vakantie-border);border-bottom:3px solid var(--vakantie-border);}
+  .day.marlies-normaal .lbl,.day.vakantie .lbl{color:#334155;}
+
+  #sentinel{height:40px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.85rem;}
+
+  /* log tab */
+  .logentry{background:var(--card);border:1px solid var(--border);border-left:5px solid var(--purple);border-radius:10px;padding:1rem 1.2rem;margin-bottom:.9rem;}
+  .logentry .date{font-size:.75rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-bottom:.35rem;}
+  .logentry h3{margin:0 0 .5rem;font-size:1rem;}
+  .logentry .q{margin:0 0 .5rem;font-size:.9rem;}
+  .logentry .q b{color:var(--navy);}
+  .logentry .a{margin:0;font-size:.9rem;background:#f1f5f9;border-radius:8px;padding:.6rem .8rem;}
+  .logentry .a b{color:var(--navy);}
+
+  .addnote{font-size:.82rem;color:var(--muted);text-align:center;margin-top:1rem;}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="gate">
+  <div class="logo">👨‍👧‍👦 Kindregeling</div>
+  <div class="box">
+    <h2>Beveiligde pagina</h2>
+    <input type="password" id="pwInput" placeholder="Wachtwoord..." onkeydown="if(event.key==='Enter')checkPw()"/>
+    <button onclick="checkPw()">Toegang</button>
+    <div class="back"><a href="https://stverstr.github.io">← Portfolio</a></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="top">
+    <h1>👨‍👧‍👦 Kindregeling</h1>
+    <span class="who">Stijn &amp; Marlies · Robbe &amp; Lore</span>
+  </header>
+
+  <nav class="tabs">
+    <button class="active" data-tab="tijdlijn" onclick="showTab('tijdlijn')">Tijdlijn</button>
+    <button data-tab="log" onclick="showTab('log')">Log — vraag &amp; beslissing</button>
+  </nav>
+
+  <!-- TIJDLIJN VIEW -->
+  <section id="view-tijdlijn" class="view active">
+    <div class="legend">
+      <div class="item"><span class="swatch" style="background:var(--stijn)"></span>Stijn (normaal)</div>
+      <div class="item"><span class="swatch" style="background:var(--marlies)"></span>Marlies (normaal)</div>
+      <div class="item"><span class="swatch" style="background:var(--marlies-gevraagd)"></span>Marlies (gevraagd weekend)</div>
+      <div class="item"><span class="swatch" style="background:var(--stijn-compensatie);border:2px solid var(--stijn-border)"></span>Stijn (compensatie weekend)</div>
+      <div class="item"><span class="swatch" style="background:var(--vakantie);border:2px solid var(--vakantie-border)"></span>Vakantie / afwijkende afspraak</div>
+    </div>
+
+    <div class="infobox">
+      Basisregeling (ouderschapsovereenkomst 5/12/2025): <b>even week → Marlies</b>, <b>oneven week → Stijn</b>. Wissel op maandagochtend na school / 9u op schoolvrije dag.<br>
+      Vanaf <b>maandag 4 januari 2027</b> wordt dit omgedraaid: <b>even week → Stijn</b>, <b>oneven week → Marlies</b><span class="tag">nieuwe regeling</span>.
+    </div>
+
+    <div id="weeks"></div>
+    <div id="sentinel">meer laden…</div>
+  </section>
+
+  <!-- LOG VIEW -->
+  <section id="view-log" class="view">
+    <div id="logwrap"></div>
+    <p class="addnote">Bij elke nieuwe afspraak wordt hier genoteerd wie wat gevraagd heeft en welke beslissing is genomen.</p>
+  </section>
+</div>
+
+<script>
+/* ============ AUTH ============ */
+const MASTER_HASH = '750db0f147fb55c6755f5b3bb2606a35623b43d03c80056c48587dfa2df45c04';
+async function sha256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
+async function checkPw(){
+  const h=await sha256(document.getElementById('pwInput').value);
+  if(h===MASTER_HASH){
+    sessionStorage.setItem('auth','1');
+    document.getElementById('gate').style.display='none';
+    document.getElementById('app').style.display='block';
+    if(typeof onAppReady==='function')onAppReady();
+  } else {
+    const i=document.getElementById('pwInput');
+    i.style.borderColor='#ef4444'; i.value='';
+    setTimeout(()=>i.style.borderColor='#333',600);
+  }
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  if(sessionStorage.getItem('auth')==='1'){
+    document.getElementById('gate').style.display='none';
+    document.getElementById('app').style.display='block';
+    if(typeof onAppReady==='function')onAppReady();
+  }
+});
+
+/* ============ TABS ============ */
+function showTab(name){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+}
+
+/* ============ SCHEDULE ENGINE ============ */
+const CUTOVER = new Date(2027,0,4); // maandag 4 jan 2027 — nieuwe regeling start
+
+// Uitzonderingen op de basisregel (chronologisch). Datums als 'YYYY-MM-DD' (inclusief).
+const EXCEPTIONS = [
+  // Kerst 2026 — skivakantie St. Anton (op vraag van Stijn)
+  {start:'2026-12-21', end:'2026-12-21', who:'stijn', type:'vakantie', label:'🚂 Vertrek trein'},
+  {start:'2026-12-22', end:'2026-12-22', who:'stijn', type:'vakantie', label:'⛷️ St. Anton'},
+  {start:'2026-12-23', end:'2026-12-23', who:'stijn', type:'vakantie', label:'⛷️'},
+  {start:'2026-12-24', end:'2026-12-24', who:'stijn', type:'vakantie', label:'🎄 ½ dag ski'},
+  {start:'2026-12-25', end:'2026-12-25', who:'stijn', type:'vakantie', label:'🎅 Kerstdag'},
+  {start:'2026-12-26', end:'2026-12-26', who:'stijn', type:'vakantie', label:'⛷️'},
+  {start:'2026-12-27', end:'2026-12-27', who:'stijn', type:'vakantie', label:'🚂 Terug'},
+  {start:'2026-12-31', end:'2027-01-03', who:'marlies', type:'vakantie', label:'🥂 Oud &amp; nieuw'},
+  // Weekendwissel jan 2027 (op vraag van Marlies)
+  {start:'2027-01-15', end:'2027-01-17', who:'marlies', type:'gevraagd', label:'Gevraagd weekend'},
+  {start:'2027-01-22', end:'2027-01-24', who:'stijn', type:'compensatie', label:'Compensatie'},
+  // Weekendwissel juli 2027 (op vraag van Marlies)
+  {start:'2027-07-02', end:'2027-07-04', who:'marlies', type:'gevraagd', label:'Gevraagd weekend'},
+  {start:'2027-07-09', end:'2027-07-11', who:'stijn', type:'compensatie', label:'Compensatie'},
+];
+
+function fmt(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function mondayOf(d){ const dt=new Date(d); const day=(dt.getDay()+6)%7; dt.setDate(dt.getDate()-day); dt.setHours(0,0,0,0); return dt; }
+function isoWeekNum(d){
+  const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  const dayNum=(t.getUTCDay()+6)%7;
+  t.setUTCDate(t.getUTCDate()-dayNum+3);
+  const firstThursday=new Date(Date.UTC(t.getUTCFullYear(),0,4));
+  const diff=(t-firstThursday)/86400000;
+  return 1+Math.round(diff/7);
+}
+function baseParent(date){
+  const monday=mondayOf(date);
+  const wk=isoWeekNum(date);
+  const isEven=(wk%2===0);
+  if(monday<CUTOVER) return isEven?'marlies':'stijn';
+  return isEven?'stijn':'marlies';
+}
+function findException(iso){
+  for(const ex of EXCEPTIONS){ if(iso>=ex.start && iso<=ex.end) return ex; }
+  return null;
+}
+function dayInfo(date){
+  const iso=fmt(date);
+  const ex=findException(iso);
+  if(ex) return {who:ex.who, type:ex.type, label:ex.label||''};
+  return {who:baseParent(date), type:'normaal', label:''};
+}
+function cssClass(info){
+  if(info.type==='gevraagd') return info.who+'-gevraagd';
+  if(info.type==='compensatie') return info.who+'-compensatie';
+  if(info.type==='vakantie') return 'vakantie';
+  return info.who+'-normaal';
+}
+
+const DAYNAMES=['MA','DI','WOE','DO','VR','ZAT','ZON'];
+const MAANDEN=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+
+let cursor=null; // maandag van eerstvolgende te renderen week
+const todayIso = fmt(new Date());
+
+function renderWeek(monday){
+  const wk=isoWeekNum(monday);
+  const parity=(wk%2===0)?'EVEN':'ONEVEN';
+  const base=baseParent(monday);
+  const isCutoverWeek = fmt(monday)===fmt(CUTOVER);
+
+  const row=document.createElement('div');
+  row.className='weekrow'+(isCutoverWeek?' cutover':'');
+
+  const endDate=new Date(monday); endDate.setDate(endDate.getDate()+6);
+  const rangeLabel = monday.getDate()+' '+MAANDEN[monday.getMonth()]+' – '+endDate.getDate()+' '+MAANDEN[endDate.getMonth()];
+
+  const head=document.createElement('div');
+  head.className='weekhead';
+  head.innerHTML = `<span class="wk">Week ${wk} · ${rangeLabel}${isCutoverWeek?' · 🟣 Nieuwe regeling start':''}</span><span class="tag ${base}">${parity} · normaal ${base==='stijn'?'Stijn':'Marlies'}</span>`;
+  row.appendChild(head);
+
+  const days=document.createElement('div');
+  days.className='days';
+  for(let i=0;i<7;i++){
+    const d=new Date(monday); d.setDate(d.getDate()+i);
+    const info=dayInfo(d);
+    const cell=document.createElement('div');
+    cell.className='day '+cssClass(info)+(fmt(d)===todayIso?' today':'');
+    cell.innerHTML = `<div class="dname">${DAYNAMES[i]}</div><div class="dnum">${d.getDate()}</div>${info.label?`<span class="lbl">${info.label}</span>`:''}`;
+    days.appendChild(cell);
+  }
+  row.appendChild(days);
+  document.getElementById('weeks').appendChild(row);
+}
+
+function loadMoreWeeks(n){
+  for(let i=0;i<n;i++){
+    renderWeek(cursor);
+    cursor=new Date(cursor); cursor.setDate(cursor.getDate()+7);
+  }
+}
+
+function initTimeline(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const lastWeek=new Date(today); lastWeek.setDate(today.getDate()-7);
+  cursor=mondayOf(lastWeek);
+  loadMoreWeeks(14);
+
+  const sentinel=document.getElementById('sentinel');
+  const io=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting) loadMoreWeeks(8); });
+  }, {rootMargin:'400px'});
+  io.observe(sentinel);
+}
+
+/* ============ LOG ============ */
+const LOG = [
+  {
+    date:'2025-12-05',
+    title:'Ondertekening ouderschapsovereenkomst',
+    q:'Basisafspraak tussen Stijn en Marlies over verblijfsregeling, kerst/nieuwjaar, financiën en gezag.',
+    a:'Week-week-regeling: <b>even week bij Marlies</b>, <b>oneven week bij Stijn</b>, wissel maandagochtend na school / 9u op schoolvrije dag. Kerstavond/kerstdag en oudjaar/nieuwjaar volgens vaste beurtrol per even/oneven kalenderjaar.'
+  },
+  {
+    date:'2026-12-21',
+    title:'Skivakantie kerst 2026',
+    q:'<b>Vraag van Stijn:</b> mag ik met Robbe en Lore op skivakantie tijdens het kerstverlof, buiten de normale week-week-rotatie om?',
+    a:'Stijn en de kinderen op skivakantie in St. Anton van <b>21 t.e.m. 27 december 2026</b> (incl. kerstavond/kerstdag, conform de bestaande beurtrol voor even jaren). Nadien normale rotatie hervat; oudjaar/nieuwjaar (31/12–3/1) bij Marlies volgens de afspraak voor even jaren.'
+  },
+  {
+    date:'2027-01-04',
+    title:'Omwisseling even/oneven regeling',
+    q:'<b>Vraag van Marlies:</b> kunnen we de week-week-regeling omdraaien, zodat Stijn de even weken heeft en Marlies de oneven weken (in plaats van omgekeerd)?',
+    a:'Vanaf <b>maandag 4 januari 2027</b> geldt: <b>even week bij Stijn</b>, <b>oneven week bij Marlies</b>. Verder ongewijzigd (wisseldag, vakantieregeling, financiën).'
+  },
+  {
+    date:'2027-01-15',
+    title:'Weekendwissel januari 2027',
+    q:'<b>Vraag van Marlies:</b> kan ik het weekend van 15–17 januari 2027 krijgen (normaal het weekend van Stijn)?',
+    a:'Marlies neemt het weekend van <b>15–17 januari 2027</b>. Stijn krijgt als compensatie het weekend van <b>22–24 januari 2027</b>.'
+  },
+  {
+    date:'2027-07-02',
+    title:'Weekendwissel juli 2027',
+    q:'<b>Vraag van Marlies:</b> kan ik het weekend van 2–4 juli 2027 krijgen (normaal het weekend van Stijn)?',
+    a:'Marlies neemt het weekend van <b>2–4 juli 2027</b>. Stijn krijgt als compensatie het weekend van <b>9–11 juli 2027</b>.'
+  },
+];
+
+function renderLog(){
+  const wrap=document.getElementById('logwrap');
+  wrap.innerHTML='';
+  const sorted=[...LOG].sort((a,b)=> b.date.localeCompare(a.date));
+  for(const entry of sorted){
+    const div=document.createElement('div');
+    div.className='logentry';
+    const d=new Date(entry.date+'T00:00:00');
+    const dateLabel=d.getDate()+' '+MAANDEN[d.getMonth()]+' '+d.getFullYear();
+    div.innerHTML = `<div class="date">${dateLabel}</div><h3>${entry.title}</h3><p class="q">${entry.q}</p><p class="a">${entry.a}</p>`;
+    wrap.appendChild(div);
+  }
+}
+
+/* ============ INIT ============ */
+function onAppReady(){
+  initTimeline();
+  renderLog();
+}
+</script>
+</body>
+</html>
