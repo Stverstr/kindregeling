@@ -234,9 +234,32 @@ const EXCEPTIONS = [
   {start:'2029-10-29', end:'2029-10-31', who:'marlies', label:'Herfstvakantie-regel (tot woe 12u)'},
   // Krokusvakantie 2030 (4-10 mrt): vrijdag vóór start (1/3) → even-rol → Marlies tot woe 12u
   {start:'2030-03-04', end:'2030-03-06', who:'marlies', label:'Krokusvakantie-regel (tot woe 12u)'},
+  // --- Vanaf hier (schooljaar 2030-2031) zijn de vakantiedata BEREKEND volgens de wettelijke
+  // regel (Besluit Vlaamse Regering 31/08/2001, art. 7 / Besluit 17/04/1991, art. 4), niet
+  // (nog) officieel gepubliceerd door de Vlaamse overheid (vlaanderen.be publiceert momenteel
+  // t.e.m. schooljaar 2029-2030). De regel is geverifieerd tegen alle jaren hierboven (2026-2030)
+  // en klopte exact, dus de kans op afwijking is klein — maar herbevestig zodra officieel bekend.
+  // Kerst/nieuwjaar 2030-2031 (kerstvakantie 23 dec 2030 - 5 jan 2031): 2030 = even jaar
+  // → kerst (24-25 dec) → vader, oudjaar/nieuwjaar (31 dec-2 jan) → moeder
+  {start:'2030-12-24', end:'2030-12-24', who:'stijn', label:'🎄 Kerstavond'},
+  {start:'2030-12-25', end:'2030-12-25', who:'stijn', label:'🎅 Kerstdag'},
+  {start:'2030-12-31', end:'2031-01-02', who:'marlies', label:'🥂 Oud &amp; nieuw'},
+  // Herfstvakantie 2030 (28 okt-3 nov): vrijdag vóór start (25/10) → Marlies tot woe 12u
+  {start:'2030-10-28', end:'2030-10-30', who:'marlies', label:'Herfstvakantie-regel (tot woe 12u)'},
+  // Krokusvakantie 2031 (24 feb-2 mrt): vrijdag vóór start (21/2) → Stijn tot woe 12u
+  {start:'2031-02-24', end:'2031-02-26', who:'stijn', label:'Krokusvakantie-regel (tot woe 12u)'},
+  // Herfstvakantie 2031 (27 okt-2 nov): vrijdag vóór start (24/10) → Marlies tot woe 12u
+  {start:'2031-10-27', end:'2031-10-29', who:'marlies', label:'Herfstvakantie-regel (tot woe 12u)'},
+  // Kerst/nieuwjaar 2031 (enkel het december-deel valt nog binnen de tijdlijn t.e.m. 2031):
+  // 2031 = oneven jaar → kerst → moeder, oudjaar/nieuwjaar → vader
+  {start:'2031-12-24', end:'2031-12-24', who:'marlies', label:'🎄 Kerstavond'},
+  {start:'2031-12-25', end:'2031-12-25', who:'marlies', label:'🎅 Kerstdag'},
+  {start:'2031-12-31', end:'2032-01-02', who:'stijn', label:'🥂 Oud &amp; nieuw'},
 ];
-// Let op: herfst/krokus/kerst zijn nu ingevuld t.e.m. schooljaar 2029-2030 (officiële data via
-// vlaanderen.be). Zodra de Vlaamse overheid nieuwe schooljaren publiceert, vraag Stijn me dit aan te vullen.
+// Let op: herfst/krokus/kerst zijn ingevuld t.e.m. eind 2031. T.e.m. schooljaar 2029-2030 zijn
+// dit officiële data (vlaanderen.be); vanaf schooljaar 2030-2031 zijn dit berekende data volgens
+// de wettelijke regel (zie toelichting hierboven). Zodra de Vlaamse overheid nieuwe schooljaren
+// publiceert, of als de tijdlijn ooit verder dan 2031 moet lopen, vraag Stijn me dit aan te vullen/verifiëren.
 
 // Info-labels: wijzigen NIET wie de kinderen heeft, tonen enkel extra context (kampen, vakanties).
 const INFO_EVENTS = [
@@ -252,6 +275,11 @@ const INFO_EVENTS = [
   {start:'2029-10-29', end:'2029-11-04', label:'🍂 Herfstvakantie'},
   {start:'2029-12-24', end:'2030-01-06', label:'🎄 Kerstvakantie'},
   {start:'2030-03-04', end:'2030-03-10', label:'💠 Krokusvakantie'},
+  {start:'2030-10-28', end:'2030-11-03', label:'🍂 Herfstvakantie'},
+  {start:'2030-12-23', end:'2031-01-05', label:'🎄 Kerstvakantie'},
+  {start:'2031-02-24', end:'2031-03-02', label:'💠 Krokusvakantie'},
+  {start:'2031-10-27', end:'2031-11-02', label:'🍂 Herfstvakantie'},
+  {start:'2031-12-22', end:'2032-01-04', label:'🎄 Kerstvakantie'},
 ];
 
 function fmt(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
