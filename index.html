@@ -16,20 +16,12 @@
   *{box-sizing:border-box;}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);}
 
-  /* ---------- password gate ---------- */
-  #gate{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#0f0f11;font-family:system-ui}
-  #gate .logo{font-size:1.8rem;font-weight:800;color:#fff;margin-bottom:2rem}
-  #gate .box{background:#1a1a1f;border:1px solid #2a2a32;border-radius:16px;padding:2.5rem;width:360px;text-align:center}
-  #gate h2{color:#fff;margin:0 0 1rem}
-  #gate input{width:100%;padding:.85rem;border:1px solid #333;border-radius:10px;background:#111;color:#fff;font-size:1rem;margin-bottom:1rem;outline:none}
-  #gate button{width:100%;padding:.85rem;background:#6366f1;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer}
-  #gate .back{margin-top:1rem;font-size:.8rem;color:#666}
-  #gate .back a{color:#6366f1}
-
   /* ---------- app shell ---------- */
-  #app{display:none;max-width:960px;margin:0 auto;padding:1.25rem 1rem 4rem;}
+  #app{display:block;max-width:960px;margin:0 auto;padding:1.25rem 1rem 4rem;}
   header.top{display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;}
   header.top h1{font-size:1.3rem;margin:0;}
+  header.top .back{font-size:.8rem;color:var(--muted);text-decoration:none;}
+  header.top .back:hover{text-decoration:underline;}
   header.top .who{font-size:.85rem;color:var(--muted);margin-left:auto;}
 
   nav.tabs{display:flex;gap:.5rem;margin-bottom:1.25rem;border-bottom:1px solid var(--border);}
@@ -89,25 +81,48 @@
   .logentry .a b{color:var(--navy);}
 
   .addnote{font-size:.82rem;color:var(--muted);text-align:center;margin-top:1rem;}
+
+  /* ---------- mobiel ---------- */
+  @media (max-width:600px){
+    #app{padding:.85rem .5rem 3rem;}
+    header.top{flex-wrap:wrap;gap:.3rem .6rem;margin-bottom:.75rem;}
+    header.top h1{font-size:1.1rem;}
+    header.top .who{margin-left:0;width:100%;order:3;font-size:.78rem;}
+
+    nav.tabs{gap:.2rem;margin-bottom:1rem;overflow-x:auto;}
+    nav.tabs button{padding:.6rem .7rem;font-size:.85rem;white-space:nowrap;}
+
+    .legend{gap:.5rem .7rem;padding:.7rem .8rem;font-size:.72rem;}
+    .swatch{width:13px;height:13px;}
+
+    .navbar{gap:.3rem;padding:.5rem;border-radius:10px;}
+    .navbar .navbtn{width:1.9rem;height:1.9rem;font-size:.95rem;}
+    .navbar .navtoday{padding:.5rem .6rem;font-size:.72rem;}
+
+    .weekhead{flex-wrap:wrap;gap:.2rem .5rem;padding:.45rem .6rem;font-size:.72rem;}
+
+    .day{padding:.35rem .2rem;min-height:52px;font-size:.68rem;}
+    .day .dname{font-size:.58rem;}
+    .day .dnum{font-size:.82rem;}
+    .day .lbl{font-size:.58rem;}
+    .day .info{font-size:.54rem;}
+    .day.today .vandaag{font-size:.5rem;padding:.05rem .25rem;margin-left:.15rem;}
+
+    .logentry{padding:.8rem 1rem;}
+  }
+  @media (max-width:380px){
+    .day{padding:.25rem .1rem;min-height:46px;font-size:.62rem;}
+    .day .dnum{font-size:.75rem;}
+  }
 </style>
 </head>
 <body>
-
-<!-- PASSWORD GATE -->
-<div id="gate">
-  <div class="logo">👨‍👧‍👦 Kindregeling</div>
-  <div class="box">
-    <h2>Beveiligde pagina</h2>
-    <input type="password" id="pwInput" placeholder="Wachtwoord..." onkeydown="if(event.key==='Enter')checkPw()"/>
-    <button onclick="checkPw()">Toegang</button>
-    <div class="back"><a href="https://stverstr.github.io">← Portfolio</a></div>
-  </div>
-</div>
 
 <!-- APP -->
 <div id="app">
   <header class="top">
     <h1>👨‍👧‍👦 Kindregeling</h1>
+    <a class="back" href="https://stverstr.github.io">← Portfolio</a>
     <span class="who">Stijn &amp; Marlies · Robbe &amp; Lore</span>
   </header>
 
@@ -146,29 +161,7 @@
 </div>
 
 <script>
-/* ============ AUTH ============ */
-const MASTER_HASH = '750db0f147fb55c6755f5b3bb2606a35623b43d03c80056c48587dfa2df45c04';
-async function sha256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
-async function checkPw(){
-  const h=await sha256(document.getElementById('pwInput').value);
-  if(h===MASTER_HASH){
-    sessionStorage.setItem('auth','1');
-    document.getElementById('gate').style.display='none';
-    document.getElementById('app').style.display='block';
-    if(typeof onAppReady==='function')onAppReady();
-  } else {
-    const i=document.getElementById('pwInput');
-    i.style.borderColor='#ef4444'; i.value='';
-    setTimeout(()=>i.style.borderColor='#333',600);
-  }
-}
-window.addEventListener('DOMContentLoaded',()=>{
-  if(sessionStorage.getItem('auth')==='1'){
-    document.getElementById('gate').style.display='none';
-    document.getElementById('app').style.display='block';
-    if(typeof onAppReady==='function')onAppReady();
-  }
-});
+window.addEventListener('DOMContentLoaded', ()=>{ if(typeof onAppReady==='function') onAppReady(); });
 
 /* ============ TABS ============ */
 function showTab(name){
@@ -360,8 +353,17 @@ function renderNavLabel(){
   document.getElementById('navlabel').textContent = MAANDEN_VOL[viewDate.getMonth()]+' '+viewDate.getFullYear();
 }
 
+function firstMondayInMonth(year, month){
+  // Maandag van de week die de 1e bevat kan nog in de vorige maand vallen
+  // (bv. als de 1e op een dinsdag t/m zondag valt). Schuif in dat geval één
+  // week op zodat de eerst getoonde rij ook echt in de doelmaand start —
+  // anders "corrigeert" de scroll-observer het label meteen weer terug.
+  let d=mondayOf(new Date(year, month, 1));
+  if(d.getMonth()!==month || d.getFullYear()!==year) d.setDate(d.getDate()+7);
+  return d;
+}
 function gotoViewDate(){
-  const target=mondayOf(new Date(viewDate.getFullYear(), viewDate.getMonth(), 1));
+  const target=firstMondayInMonth(viewDate.getFullYear(), viewDate.getMonth());
   startFrom(target);
   renderNavLabel();
   document.getElementById('view-tijdlijn').scrollIntoView({behavior:'instant',block:'start'});
