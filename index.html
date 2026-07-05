@@ -45,11 +45,12 @@
   .swatch{width:16px;height:16px;border-radius:4px;flex:none;}
 
   /* filter bar */
-  .filterbar{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.7rem .9rem;margin-bottom:1rem;font-size:.85rem;}
-  .filterbar label{color:var(--muted);font-weight:600;}
-  .filterbar select{padding:.4rem .6rem;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:.85rem;}
-  .filterbar button{padding:.45rem .9rem;border:none;border-radius:8px;background:var(--purple);color:#fff;font-weight:600;font-size:.85rem;cursor:pointer;}
-  .filterbar button.ghost{background:none;color:var(--muted);text-decoration:underline;padding:.45rem .3rem;}
+  .navbar{position:sticky;top:.6rem;z-index:20;display:flex;align-items:center;gap:.5rem;background:var(--navy);color:#fff;border-radius:12px;padding:.6rem .7rem;margin-bottom:1rem;box-shadow:0 6px 16px rgba(15,23,42,.25);}
+  .navbar .navlabel{flex:1;text-align:center;font-size:1.15rem;font-weight:800;letter-spacing:.01em;}
+  .navbar .navbtn{background:rgba(255,255,255,.12);border:none;color:#fff;width:2.1rem;height:2.1rem;border-radius:8px;font-size:1.05rem;font-weight:700;cursor:pointer;line-height:1;}
+  .navbar .navbtn:hover{background:rgba(255,255,255,.22);}
+  .navbar .navtoday{background:var(--purple);border:none;color:#fff;font-weight:700;font-size:.8rem;padding:.5rem .8rem;border-radius:8px;cursor:pointer;white-space:nowrap;}
+  @media (max-width:520px){ .navbar .navlabel{font-size:.95rem;} }
 
   /* week table */
   .weekrow{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:.7rem;overflow:hidden;}
@@ -124,12 +125,13 @@
       <div class="item"><span class="swatch" style="background:var(--marlies-afwijking)"></span>Marlies (afwijkend)</div>
     </div>
 
-    <div class="filterbar">
-      <label for="jumpMonth">Ga naar</label>
-      <select id="jumpMonth"></select>
-      <select id="jumpYear"></select>
-      <button onclick="jumpToMonth()">Spring</button>
-      <button class="ghost" onclick="jumpToToday()">← Vandaag</button>
+    <div class="navbar" id="navbar">
+      <button class="navbtn" onclick="shiftYear(-1)" title="Vorig jaar">«</button>
+      <button class="navbtn" onclick="shiftMonth(-1)" title="Vorige maand">‹</button>
+      <div class="navlabel" id="navlabel">–</div>
+      <button class="navbtn" onclick="shiftMonth(1)" title="Volgende maand">›</button>
+      <button class="navbtn" onclick="shiftYear(1)" title="Volgend jaar">»</button>
+      <button class="navtoday" onclick="jumpToToday()">Vandaag</button>
     </div>
 
     <div id="weeks"></div>
@@ -191,6 +193,8 @@ const EXCEPTIONS = [
   {start:'2026-08-03', end:'2026-08-14', who:'marlies'},
   {start:'2026-08-15', end:'2026-08-16', who:'stijn'},
   {start:'2026-08-17', end:'2026-08-23', who:'marlies'},
+  // Weekend voor de skivakantie: 18-20 december bij Marlies (afgesproken)
+  {start:'2026-12-18', end:'2026-12-20', who:'marlies'},
   // Kerst 2026 — skivakantie St. Anton (op vraag van Stijn, eenmalig)
   {start:'2026-12-21', end:'2026-12-21', who:'stijn', label:'🚂 Vertrek trein'},
   {start:'2026-12-22', end:'2026-12-22', who:'stijn', label:'⛷️ St. Anton'},
@@ -295,8 +299,11 @@ function cssClass(info){
 
 const DAYNAMES=['MA','DI','WOE','DO','VR','ZAT','ZON'];
 const MAANDEN=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+const MAANDEN_VOL=['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
 
 let cursor=null; // maandag van eerstvolgende te renderen week
+let viewDate=new Date(); // maand/jaar dat momenteel getoond wordt in de navbar
+let rowObserver=null;
 const todayIso = fmt(new Date());
 
 function renderWeek(monday){
@@ -307,6 +314,8 @@ function renderWeek(monday){
 
   const row=document.createElement('div');
   row.className='weekrow'+(isCutoverWeek?' cutover':'');
+  row.dataset.year=monday.getFullYear();
+  row.dataset.month=monday.getMonth();
 
   const endDate=new Date(monday); endDate.setDate(endDate.getDate()+6);
   const rangeLabel = monday.getDate()+' '+MAANDEN[monday.getMonth()]+' – '+endDate.getDate()+' '+MAANDEN[endDate.getMonth()];
@@ -330,11 +339,13 @@ function renderWeek(monday){
   }
   row.appendChild(days);
   document.getElementById('weeks').appendChild(row);
+  return row;
 }
 
 function loadMoreWeeks(n){
   for(let i=0;i<n;i++){
-    renderWeek(cursor);
+    const row=renderWeek(cursor);
+    if(rowObserver) rowObserver.observe(row);
     cursor=new Date(cursor); cursor.setDate(cursor.getDate()+7);
   }
 }
@@ -345,7 +356,46 @@ function startFrom(monday){
   loadMoreWeeks(14);
 }
 
+function renderNavLabel(){
+  document.getElementById('navlabel').textContent = MAANDEN_VOL[viewDate.getMonth()]+' '+viewDate.getFullYear();
+}
+
+function gotoViewDate(){
+  const target=mondayOf(new Date(viewDate.getFullYear(), viewDate.getMonth(), 1));
+  startFrom(target);
+  renderNavLabel();
+  document.getElementById('view-tijdlijn').scrollIntoView({behavior:'instant',block:'start'});
+}
+function shiftMonth(delta){
+  viewDate=new Date(viewDate.getFullYear(), viewDate.getMonth()+delta, 1);
+  gotoViewDate();
+}
+function shiftYear(delta){
+  viewDate=new Date(viewDate.getFullYear()+delta, viewDate.getMonth(), 1);
+  gotoViewDate();
+}
+function jumpToToday(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  viewDate=new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastWeek=new Date(today); lastWeek.setDate(today.getDate()-7);
+  startFrom(mondayOf(lastWeek));
+  renderNavLabel();
+}
+
 function initTimeline(){
+  viewDate=new Date();
+  renderNavLabel();
+
+  rowObserver=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        const y=parseInt(e.target.dataset.year,10), m=parseInt(e.target.dataset.month,10);
+        viewDate=new Date(y,m,1);
+        renderNavLabel();
+      }
+    });
+  }, {rootMargin:'-64px 0px -85% 0px', threshold:0});
+
   const today=new Date(); today.setHours(0,0,0,0);
   const lastWeek=new Date(today); lastWeek.setDate(today.getDate()-7);
   startFrom(mondayOf(lastWeek));
@@ -355,38 +405,6 @@ function initTimeline(){
     entries.forEach(e=>{ if(e.isIntersecting) loadMoreWeeks(8); });
   }, {rootMargin:'400px'});
   io.observe(sentinel);
-
-  initJumpFilter();
-}
-
-/* ============ MAAND/JAAR SPRONG ============ */
-function initJumpFilter(){
-  const today=new Date();
-  const monthSel=document.getElementById('jumpMonth');
-  const yearSel=document.getElementById('jumpYear');
-  const MAANDEN_VOL=['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
-  monthSel.innerHTML = MAANDEN_VOL.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
-  monthSel.value = today.getMonth();
-  const startYear = today.getFullYear()-1;
-  const endYear = today.getFullYear()+3;
-  let yearOpts='';
-  for(let y=startYear;y<=endYear;y++) yearOpts += `<option value="${y}">${y}</option>`;
-  yearSel.innerHTML = yearOpts;
-  yearSel.value = today.getFullYear();
-}
-function jumpToMonth(){
-  const m=parseInt(document.getElementById('jumpMonth').value,10);
-  const y=parseInt(document.getElementById('jumpYear').value,10);
-  const target=mondayOf(new Date(y,m,1));
-  startFrom(target);
-  document.getElementById('view-tijdlijn').scrollIntoView({behavior:'instant',block:'start'});
-}
-function jumpToToday(){
-  const today=new Date(); today.setHours(0,0,0,0);
-  const lastWeek=new Date(today); lastWeek.setDate(today.getDate()-7);
-  startFrom(mondayOf(lastWeek));
-  document.getElementById('jumpMonth').value = today.getMonth();
-  document.getElementById('jumpYear').value = today.getFullYear();
 }
 
 /* ============ LOG ============ */
@@ -396,6 +414,12 @@ const LOG = [
     title:'Zomerplanning 2026',
     q:'Gezamenlijke planning van de zomervakantie, met eigen data los van de gewone weekregeling.',
     a:'Bij papa tot en met 5 juli. Mama reist met Robbe en Lore (6–15 juli). Bij papa (16–19 juli). Bij mama (20–23 juli). Bij papa vanaf 24 juli; papa reist met Robbe en Lore vanaf 25 juli tot 2 augustus. Bij mama, incl. turnkamp van Lore (3–14 augustus). Bij papa (15–16 augustus). Bij mama (17–23 augustus).'
+  },
+  {
+    date:'2026-12-18',
+    title:'Weekend voor de kerstvakantie',
+    q:'Afspraak rond het weekend net voor de skivakantie.',
+    a:'Het weekend van 18 tot en met 20 december 2026 zijn de kinderen bij mama.'
   },
   {
     date:'2026-12-21',
