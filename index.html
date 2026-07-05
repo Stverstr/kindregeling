@@ -60,7 +60,8 @@
   .day .dname{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
   .day .dnum{font-weight:700;font-size:.95rem;}
   .day .lbl{display:block;margin-top:.2rem;font-size:.68rem;line-height:1.2;}
-  .day .info{display:block;margin-top:.15rem;font-size:.64rem;line-height:1.15;font-style:italic;opacity:.85;}
+  .day .badges{margin-top:.2rem;line-height:1;}
+  .day .badge{font-size:.8rem;margin-right:.15rem;cursor:default;}
   .day.today{outline:3px solid var(--purple);outline-offset:-3px;box-shadow:0 0 0 5px rgba(124,58,237,.18) inset;z-index:1;}
   .day.today .dnum{color:var(--purple);}
   .day.today .vandaag{display:inline-block;margin-left:.3rem;background:var(--purple);color:#fff;font-size:.6rem;font-weight:700;padding:.05rem .35rem;border-radius:5px;vertical-align:middle;}
@@ -69,7 +70,7 @@
   .day.marlies-normaal{background:var(--marlies);}
   .day.stijn-afwijking{background:var(--stijn-afwijking);color:var(--stijn-text);border-top:3px solid var(--stijn-afwijking-border);border-bottom:3px solid var(--stijn-afwijking-border);}
   .day.marlies-afwijking{background:var(--marlies-afwijking);color:var(--marlies-text);border-top:3px solid var(--marlies-afwijking-border);border-bottom:3px solid var(--marlies-afwijking-border);}
-  .day.marlies-normaal .lbl,.day.marlies-normaal .info{color:#334155;}
+  .day.marlies-normaal .lbl{color:#334155;}
 
   #sentinel{height:40px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.85rem;}
 
@@ -107,7 +108,7 @@
     .day .dname{font-size:.58rem;}
     .day .dnum{font-size:.82rem;}
     .day .lbl{font-size:.58rem;}
-    .day .info{font-size:.54rem;}
+    .day .badge{font-size:.68rem;}
     .day.today .vandaag{font-size:.5rem;padding:.05rem .25rem;margin-left:.15rem;}
 
     .logentry{padding:.8rem 1rem;}
@@ -262,24 +263,49 @@ const EXCEPTIONS = [
 // publiceert, of als de tijdlijn ooit verder dan 2031 moet lopen, vraag Stijn me dit aan te vullen/verifiëren.
 
 // Info-labels: wijzigen NIET wie de kinderen heeft, tonen enkel extra context (kampen, vakanties).
+// Elke entry heeft een icoon (klein badge op elke dag in de periode) en een titel (tooltip/naam).
 const INFO_EVENTS = [
-  {start:'2026-08-08', end:'2026-08-13', label:'🤸 Lore op turnkamp'},
-  {start:'2026-11-02', end:'2026-11-08', label:'🍂 Herfstvakantie'},
-  {start:'2027-02-08', end:'2027-02-14', label:'💠 Krokusvakantie'},
-  {start:'2027-11-01', end:'2027-11-07', label:'🍂 Herfstvakantie'},
-  {start:'2027-12-27', end:'2028-01-09', label:'🎄 Kerstvakantie'},
-  {start:'2028-02-28', end:'2028-03-05', label:'💠 Krokusvakantie'},
-  {start:'2028-10-30', end:'2028-11-05', label:'🍂 Herfstvakantie'},
-  {start:'2028-12-25', end:'2029-01-07', label:'🎄 Kerstvakantie'},
-  {start:'2029-02-12', end:'2029-02-18', label:'💠 Krokusvakantie'},
-  {start:'2029-10-29', end:'2029-11-04', label:'🍂 Herfstvakantie'},
-  {start:'2029-12-24', end:'2030-01-06', label:'🎄 Kerstvakantie'},
-  {start:'2030-03-04', end:'2030-03-10', label:'💠 Krokusvakantie'},
-  {start:'2030-10-28', end:'2030-11-03', label:'🍂 Herfstvakantie'},
-  {start:'2030-12-23', end:'2031-01-05', label:'🎄 Kerstvakantie'},
-  {start:'2031-02-24', end:'2031-03-02', label:'💠 Krokusvakantie'},
-  {start:'2031-10-27', end:'2031-11-02', label:'🍂 Herfstvakantie'},
-  {start:'2031-12-22', end:'2032-01-04', label:'🎄 Kerstvakantie'},
+  {start:'2026-08-08', end:'2026-08-13', icon:'🤸', title:'Lore op turnkamp'},
+  {start:'2026-11-02', end:'2026-11-08', icon:'🍂', title:'Herfstvakantie'},
+  {start:'2027-02-08', end:'2027-02-14', icon:'💠', title:'Krokusvakantie'},
+  {start:'2027-03-29', end:'2027-04-11', icon:'🐣', title:'Paasvakantie'},
+  {start:'2027-11-01', end:'2027-11-07', icon:'🍂', title:'Herfstvakantie'},
+  {start:'2027-12-27', end:'2028-01-09', icon:'🎄', title:'Kerstvakantie'},
+  {start:'2028-02-28', end:'2028-03-05', icon:'💠', title:'Krokusvakantie'},
+  {start:'2028-04-03', end:'2028-04-16', icon:'🐣', title:'Paasvakantie'},
+  {start:'2028-10-30', end:'2028-11-05', icon:'🍂', title:'Herfstvakantie'},
+  {start:'2028-12-25', end:'2029-01-07', icon:'🎄', title:'Kerstvakantie'},
+  {start:'2029-02-12', end:'2029-02-18', icon:'💠', title:'Krokusvakantie'},
+  {start:'2029-04-02', end:'2029-04-15', icon:'🐣', title:'Paasvakantie'},
+  {start:'2029-10-29', end:'2029-11-04', icon:'🍂', title:'Herfstvakantie'},
+  {start:'2029-12-24', end:'2030-01-06', icon:'🎄', title:'Kerstvakantie'},
+  {start:'2030-03-04', end:'2030-03-10', icon:'💠', title:'Krokusvakantie'},
+  {start:'2030-04-08', end:'2030-04-21', icon:'🐣', title:'Paasvakantie'},
+  {start:'2030-10-28', end:'2030-11-03', icon:'🍂', title:'Herfstvakantie'},
+  {start:'2030-12-23', end:'2031-01-05', icon:'🎄', title:'Kerstvakantie'},
+  {start:'2031-02-24', end:'2031-03-02', icon:'💠', title:'Krokusvakantie'},
+  {start:'2031-04-07', end:'2031-04-20', icon:'🐣', title:'Paasvakantie'},
+  {start:'2031-10-27', end:'2031-11-02', icon:'🍂', title:'Herfstvakantie'},
+  {start:'2031-12-22', end:'2032-01-04', icon:'🎄', title:'Kerstvakantie'},
+];
+// Let op: paasvakantie 2026-2030 zijn officiële data (vlaanderen.be); 2031 is berekend volgens
+// de wettelijke regel (Besluit Vlaamse Regering, art. paasvakantie) en geverifieerd tegen de
+// officiële jaren — nog niet officieel gepubliceerd. Zelfde voorbehoud als bij herfst/krokus/kerst 2030-2031.
+
+// Losse feestdagen: enkel decoratief icoon, géén invloed op wie de kinderen heeft.
+const HOLIDAYS = [
+  {date:'2026-01-01', icon:'🎆', title:'Nieuwjaar'},
+  {date:'2026-04-05', icon:'🐰', title:'Pasen'},
+  {date:'2027-01-01', icon:'🎆', title:'Nieuwjaar'},
+  {date:'2027-03-28', icon:'🐰', title:'Pasen'},
+  {date:'2028-01-01', icon:'🎆', title:'Nieuwjaar'},
+  {date:'2028-04-16', icon:'🐰', title:'Pasen'},
+  {date:'2029-01-01', icon:'🎆', title:'Nieuwjaar'},
+  {date:'2029-04-01', icon:'🐰', title:'Pasen'},
+  {date:'2030-01-01', icon:'🎆', title:'Nieuwjaar'},
+  {date:'2030-04-21', icon:'🐰', title:'Pasen'},
+  {date:'2031-01-01', icon:'🎆', title:'Nieuwjaar'},
+  {date:'2031-04-13', icon:'🐰', title:'Pasen'},
 ];
 
 function fmt(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
@@ -304,17 +330,20 @@ function findException(iso){
   return null;
 }
 function findInfoEvents(iso){
-  return INFO_EVENTS.filter(ev=> iso>=ev.start && iso<=ev.end).map(ev=>ev.label);
+  return INFO_EVENTS.filter(ev=> iso>=ev.start && iso<=ev.end).map(ev=>({icon:ev.icon, title:ev.title}));
+}
+function findHolidays(iso){
+  return HOLIDAYS.filter(h=> h.date===iso).map(h=>({icon:h.icon, title:h.title}));
 }
 function dayInfo(date){
   const iso=fmt(date);
   const ex=findException(iso);
-  const infos=findInfoEvents(iso);
+  const badges=[...findInfoEvents(iso), ...findHolidays(iso)];
   const def=baseParent(date);
   const who = ex ? ex.who : def;
   const afwijkend = ex ? (ex.who !== def) : false;
   const label = ex ? (ex.label||'') : '';
-  return {who, afwijkend, label, infos};
+  return {who, afwijkend, label, badges};
 }
 function cssClass(info){
   return info.who + (info.afwijkend ? '-afwijking' : '-normaal');
@@ -356,8 +385,8 @@ function renderWeek(monday){
     const cell=document.createElement('div');
     const isToday = fmt(d)===todayIso;
     cell.className='day '+cssClass(info)+(isToday?' today':'');
-    const infoHtml = (info.infos&&info.infos.length) ? info.infos.map(t=>`<span class="info">${t}</span>`).join('') : '';
-    cell.innerHTML = `<div class="dname">${DAYNAMES[i]}</div><div class="dnum">${d.getDate()}${isToday?'<span class="vandaag">VANDAAG</span>':''}</div>${info.label?`<span class="lbl">${info.label}</span>`:''}${infoHtml}`;
+    const badgeHtml = (info.badges&&info.badges.length) ? `<div class="badges">${info.badges.map(b=>`<span class="badge" title="${b.title}">${b.icon}</span>`).join('')}</div>` : '';
+    cell.innerHTML = `<div class="dname">${DAYNAMES[i]}</div><div class="dnum">${d.getDate()}${isToday?'<span class="vandaag">VANDAAG</span>':''}</div>${info.label?`<span class="lbl">${info.label}</span>`:''}${badgeHtml}`;
     days.appendChild(cell);
   }
   row.appendChild(days);
