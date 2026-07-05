@@ -41,6 +41,8 @@
   .navbar .navlabel{flex:1;text-align:center;font-size:1.15rem;font-weight:800;letter-spacing:.01em;}
   .navbar .navbtn{background:rgba(255,255,255,.12);border:none;color:#fff;width:2.1rem;height:2.1rem;border-radius:8px;font-size:1.05rem;font-weight:700;cursor:pointer;line-height:1;}
   .navbar .navbtn:hover{background:rgba(255,255,255,.22);}
+  .navbar .navbtn:disabled{opacity:.3;cursor:not-allowed;}
+  .navbar .navbtn:disabled:hover{background:rgba(255,255,255,.12);}
   .navbar .navtoday{background:var(--purple);border:none;color:#fff;font-weight:700;font-size:.8rem;padding:.5rem .8rem;border-radius:8px;cursor:pointer;white-space:nowrap;}
   @media (max-width:520px){ .navbar .navlabel{font-size:.95rem;} }
 
@@ -141,11 +143,11 @@
     </div>
 
     <div class="navbar" id="navbar">
-      <button class="navbtn" onclick="shiftYear(-1)" title="Vorig jaar">«</button>
-      <button class="navbtn" onclick="shiftMonth(-1)" title="Vorige maand">‹</button>
+      <button class="navbtn" id="navPrevYear" onclick="shiftYear(-1)" title="Vorig jaar">«</button>
+      <button class="navbtn" id="navPrevMonth" onclick="shiftMonth(-1)" title="Vorige maand">‹</button>
       <div class="navlabel" id="navlabel">–</div>
-      <button class="navbtn" onclick="shiftMonth(1)" title="Volgende maand">›</button>
-      <button class="navbtn" onclick="shiftYear(1)" title="Volgend jaar">»</button>
+      <button class="navbtn" id="navNextMonth" onclick="shiftMonth(1)" title="Volgende maand">›</button>
+      <button class="navbtn" id="navNextYear" onclick="shiftYear(1)" title="Volgend jaar">»</button>
       <button class="navtoday" onclick="jumpToToday()">Vandaag</button>
     </div>
 
@@ -335,8 +337,32 @@ function renderWeek(monday){
   return row;
 }
 
+// Grenzen van de tijdlijn: niet verder terug dan vorige maand, niet verder
+// vooruit dan december 2031.
+function minViewDate(){
+  const t=new Date();
+  return new Date(t.getFullYear(), t.getMonth()-1, 1);
+}
+const MAX_VIEW_DATE = new Date(2031,11,1); // december 2031
+const MONDAY_LIMIT = mondayOf(new Date(2032,0,1)); // niet renderen vanaf hier
+
+function clampViewDate(d){
+  const min=minViewDate();
+  if(d<min) return min;
+  if(d>MAX_VIEW_DATE) return new Date(MAX_VIEW_DATE);
+  return d;
+}
+
+let sentinelObserver=null;
+
 function loadMoreWeeks(n){
   for(let i=0;i<n;i++){
+    if(cursor>=MONDAY_LIMIT){
+      const sentinel=document.getElementById('sentinel');
+      sentinel.textContent='Einde van de tijdlijn (2031)';
+      if(sentinelObserver){ sentinelObserver.disconnect(); sentinelObserver=null; }
+      break;
+    }
     const row=renderWeek(cursor);
     if(rowObserver) rowObserver.observe(row);
     cursor=new Date(cursor); cursor.setDate(cursor.getDate()+7);
@@ -345,12 +371,24 @@ function loadMoreWeeks(n){
 
 function startFrom(monday){
   document.getElementById('weeks').innerHTML='';
+  document.getElementById('sentinel').textContent='meer laden…';
   cursor=monday;
   loadMoreWeeks(14);
 }
 
 function renderNavLabel(){
   document.getElementById('navlabel').textContent = MAANDEN_VOL[viewDate.getMonth()]+' '+viewDate.getFullYear();
+  updateNavButtons();
+}
+
+function updateNavButtons(){
+  const min=minViewDate();
+  const atMin = viewDate.getFullYear()===min.getFullYear() && viewDate.getMonth()===min.getMonth();
+  const atMax = viewDate.getFullYear()===MAX_VIEW_DATE.getFullYear() && viewDate.getMonth()===MAX_VIEW_DATE.getMonth();
+  document.getElementById('navPrevYear').disabled=atMin;
+  document.getElementById('navPrevMonth').disabled=atMin;
+  document.getElementById('navNextMonth').disabled=atMax;
+  document.getElementById('navNextYear').disabled=atMax;
 }
 
 function firstMondayInMonth(year, month){
@@ -366,14 +404,15 @@ function gotoViewDate(){
   const target=firstMondayInMonth(viewDate.getFullYear(), viewDate.getMonth());
   startFrom(target);
   renderNavLabel();
+  restartSentinelObserver();
   document.getElementById('view-tijdlijn').scrollIntoView({behavior:'instant',block:'start'});
 }
 function shiftMonth(delta){
-  viewDate=new Date(viewDate.getFullYear(), viewDate.getMonth()+delta, 1);
+  viewDate=clampViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth()+delta, 1));
   gotoViewDate();
 }
 function shiftYear(delta){
-  viewDate=new Date(viewDate.getFullYear()+delta, viewDate.getMonth(), 1);
+  viewDate=clampViewDate(new Date(viewDate.getFullYear()+delta, viewDate.getMonth(), 1));
   gotoViewDate();
 }
 function jumpToToday(){
@@ -382,6 +421,16 @@ function jumpToToday(){
   const lastWeek=new Date(today); lastWeek.setDate(today.getDate()-7);
   startFrom(mondayOf(lastWeek));
   renderNavLabel();
+  restartSentinelObserver();
+}
+
+function restartSentinelObserver(){
+  if(sentinelObserver) sentinelObserver.disconnect();
+  const sentinel=document.getElementById('sentinel');
+  sentinelObserver=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting) loadMoreWeeks(8); });
+  }, {rootMargin:'400px'});
+  sentinelObserver.observe(sentinel);
 }
 
 function initTimeline(){
@@ -402,11 +451,7 @@ function initTimeline(){
   const lastWeek=new Date(today); lastWeek.setDate(today.getDate()-7);
   startFrom(mondayOf(lastWeek));
 
-  const sentinel=document.getElementById('sentinel');
-  const io=new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{ if(e.isIntersecting) loadMoreWeeks(8); });
-  }, {rootMargin:'400px'});
-  io.observe(sentinel);
+  restartSentinelObserver();
 }
 
 /* ============ LOG ============ */
