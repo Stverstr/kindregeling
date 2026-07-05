@@ -66,7 +66,9 @@
   .day .dnum{font-weight:700;font-size:.95rem;}
   .day .lbl{display:block;margin-top:.2rem;font-size:.68rem;line-height:1.2;}
   .day .info{display:block;margin-top:.15rem;font-size:.64rem;line-height:1.15;font-style:italic;opacity:.85;}
-  .day.today{outline:2px solid var(--navy);outline-offset:-2px;}
+  .day.today{outline:3px solid var(--purple);outline-offset:-3px;box-shadow:0 0 0 5px rgba(124,58,237,.18) inset;z-index:1;}
+  .day.today .dnum{color:var(--purple);}
+  .day.today .vandaag{display:inline-block;margin-left:.3rem;background:var(--purple);color:#fff;font-size:.6rem;font-weight:700;padding:.05rem .35rem;border-radius:5px;vertical-align:middle;}
 
   .day.stijn-normaal{background:var(--stijn);}
   .day.marlies-normaal{background:var(--marlies);}
@@ -180,15 +182,16 @@ const CUTOVER = new Date(2027,0,4); // maandag 4 jan 2027 — nieuwe regeling st
 // Elke entry zegt enkel WIE de kinderen die dagen heeft. Of dat "volgens regeling" of "afwijkend"
 // is, wordt automatisch bepaald door te vergelijken met de berekende basisregel (zie dayInfo).
 const EXCEPTIONS = [
-  // Zomerplanning 2026 (definitief, per 5/7/2026)
-  {start:'2026-07-05', end:'2026-07-15', who:'marlies', label:'✈️ Op reis met mama'},
+  // Zomerplanning 2026 (definitief, gecorrigeerd)
+  {start:'2026-07-06', end:'2026-07-15', who:'marlies', label:'✈️ Op reis met mama'},
   {start:'2026-07-16', end:'2026-07-19', who:'stijn'},
   {start:'2026-07-20', end:'2026-07-23', who:'marlies'},
-  {start:'2026-07-24', end:'2026-08-02', who:'stijn', label:'✈️ Op reis met papa'},
+  {start:'2026-07-24', end:'2026-07-24', who:'stijn'},
+  {start:'2026-07-25', end:'2026-08-02', who:'stijn', label:'✈️ Op reis met papa'},
   {start:'2026-08-03', end:'2026-08-14', who:'marlies'},
   {start:'2026-08-15', end:'2026-08-16', who:'stijn'},
   {start:'2026-08-17', end:'2026-08-23', who:'marlies'},
-  // Kerst 2026 — skivakantie St. Anton (op vraag van Stijn)
+  // Kerst 2026 — skivakantie St. Anton (op vraag van Stijn, eenmalig)
   {start:'2026-12-21', end:'2026-12-21', who:'stijn', label:'🚂 Vertrek trein'},
   {start:'2026-12-22', end:'2026-12-22', who:'stijn', label:'⛷️ St. Anton'},
   {start:'2026-12-23', end:'2026-12-23', who:'stijn', label:'⛷️'},
@@ -196,27 +199,60 @@ const EXCEPTIONS = [
   {start:'2026-12-25', end:'2026-12-25', who:'stijn', label:'🎅 Kerstdag'},
   {start:'2026-12-26', end:'2026-12-26', who:'stijn', label:'⛷️'},
   {start:'2026-12-27', end:'2026-12-27', who:'stijn', label:'🚂 Terug'},
-  // Oudjaar/nieuwjaar — contractuele regel voor even jaren
+  // Oudjaar/nieuwjaar 2026 — contractuele regel per kalenderjaar (even jaar → moeder)
   {start:'2026-12-31', end:'2027-01-03', who:'marlies', label:'🥂 Oud &amp; nieuw'},
   // Weekendwissel jan 2027 (op vraag van Marlies)
   {start:'2027-01-15', end:'2027-01-17', who:'marlies', label:'Gevraagd weekend'},
   {start:'2027-01-22', end:'2027-01-24', who:'stijn', label:'Compensatie'},
-  // Herfstvakantie 2026 (2 t.e.m. 8 nov): vrijdag vóór start (30/10) valt in even week → bij Marlies
-  // tot woensdagmiddag (4/11), pas nadien normale rotatie.
+  // Herfstvakantie 2026 (2-8 nov): vrijdag vóór start (30/10) → even-rol → Marlies tot woe 12u
   {start:'2026-11-02', end:'2026-11-04', who:'marlies', label:'Herfstvakantie-regel (tot woe 12u)'},
-  // Krokusvakantie 2027 (8 t.e.m. 14 feb): vrijdag vóór start (5/2) valt in oneven week (= Marlies,
-  // nieuwe regeling) → bij Marlies tot woensdagmiddag (10/2), pas nadien normale rotatie.
+  // Krokusvakantie 2027 (8-14 feb): vrijdag vóór start (5/2) → oneven-rol (nieuwe regeling = Marlies) tot woe 12u
   {start:'2027-02-08', end:'2027-02-10', who:'marlies', label:'Krokusvakantie-regel (tot woe 12u)'},
   // Weekendwissel juli 2027 (op vraag van Marlies)
   {start:'2027-07-02', end:'2027-07-04', who:'marlies', label:'Gevraagd weekend'},
   {start:'2027-07-09', end:'2027-07-11', who:'stijn', label:'Compensatie'},
+  // Kerst/nieuwjaar 2027 (oneven jaar): kerst → moeder, oudjaar/nieuwjaar → vader
+  {start:'2027-12-24', end:'2027-12-24', who:'marlies', label:'🎄 Kerstavond'},
+  {start:'2027-12-25', end:'2027-12-25', who:'marlies', label:'🎅 Kerstdag'},
+  {start:'2027-12-31', end:'2028-01-02', who:'stijn', label:'🥂 Oud &amp; nieuw'},
+  // Herfstvakantie 2027 (1-7 nov): vrijdag vóór start (29/10) → even-rol → Marlies tot woe 12u
+  {start:'2027-11-01', end:'2027-11-03', who:'marlies', label:'Herfstvakantie-regel (tot woe 12u)'},
+  // Krokusvakantie 2028 (28 feb-5 mrt): vrijdag vóór start (25/2) → oneven-rol → Stijn tot woe 12u
+  {start:'2028-02-28', end:'2028-03-01', who:'stijn', label:'Krokusvakantie-regel (tot woe 12u)'},
+  // Kerst/nieuwjaar 2028 (even jaar): kerst → vader, oudjaar/nieuwjaar → moeder
+  {start:'2028-12-24', end:'2028-12-24', who:'stijn', label:'🎄 Kerstavond'},
+  {start:'2028-12-25', end:'2028-12-25', who:'stijn', label:'🎅 Kerstdag'},
+  {start:'2028-12-31', end:'2029-01-02', who:'marlies', label:'🥂 Oud &amp; nieuw'},
+  // Herfstvakantie 2028 (30 okt-5 nov): vrijdag vóór start (27/10) → even-rol → Marlies tot woe 12u
+  {start:'2028-10-30', end:'2028-11-01', who:'marlies', label:'Herfstvakantie-regel (tot woe 12u)'},
+  // Krokusvakantie 2029 (12-18 feb): vrijdag vóór start (9/2) → oneven-rol → Stijn tot woe 12u
+  {start:'2029-02-12', end:'2029-02-14', who:'stijn', label:'Krokusvakantie-regel (tot woe 12u)'},
+  // Kerst/nieuwjaar 2029 (oneven jaar): kerst → moeder, oudjaar/nieuwjaar → vader
+  {start:'2029-12-24', end:'2029-12-24', who:'marlies', label:'🎄 Kerstavond'},
+  {start:'2029-12-25', end:'2029-12-25', who:'marlies', label:'🎅 Kerstdag'},
+  {start:'2029-12-31', end:'2030-01-02', who:'stijn', label:'🥂 Oud &amp; nieuw'},
+  // Herfstvakantie 2029 (29 okt-4 nov): vrijdag vóór start (26/10) → even-rol → Marlies tot woe 12u
+  {start:'2029-10-29', end:'2029-10-31', who:'marlies', label:'Herfstvakantie-regel (tot woe 12u)'},
+  // Krokusvakantie 2030 (4-10 mrt): vrijdag vóór start (1/3) → even-rol → Marlies tot woe 12u
+  {start:'2030-03-04', end:'2030-03-06', who:'marlies', label:'Krokusvakantie-regel (tot woe 12u)'},
 ];
+// Let op: herfst/krokus/kerst zijn nu ingevuld t.e.m. schooljaar 2029-2030 (officiële data via
+// vlaanderen.be). Zodra de Vlaamse overheid nieuwe schooljaren publiceert, vraag Stijn me dit aan te vullen.
 
 // Info-labels: wijzigen NIET wie de kinderen heeft, tonen enkel extra context (kampen, vakanties).
 const INFO_EVENTS = [
   {start:'2026-08-08', end:'2026-08-13', label:'🤸 Lore op turnkamp'},
   {start:'2026-11-02', end:'2026-11-08', label:'🍂 Herfstvakantie'},
   {start:'2027-02-08', end:'2027-02-14', label:'💠 Krokusvakantie'},
+  {start:'2027-11-01', end:'2027-11-07', label:'🍂 Herfstvakantie'},
+  {start:'2027-12-27', end:'2028-01-09', label:'🎄 Kerstvakantie'},
+  {start:'2028-02-28', end:'2028-03-05', label:'💠 Krokusvakantie'},
+  {start:'2028-10-30', end:'2028-11-05', label:'🍂 Herfstvakantie'},
+  {start:'2028-12-25', end:'2029-01-07', label:'🎄 Kerstvakantie'},
+  {start:'2029-02-12', end:'2029-02-18', label:'💠 Krokusvakantie'},
+  {start:'2029-10-29', end:'2029-11-04', label:'🍂 Herfstvakantie'},
+  {start:'2029-12-24', end:'2030-01-06', label:'🎄 Kerstvakantie'},
+  {start:'2030-03-04', end:'2030-03-10', label:'💠 Krokusvakantie'},
 ];
 
 function fmt(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
@@ -286,9 +322,10 @@ function renderWeek(monday){
     const d=new Date(monday); d.setDate(d.getDate()+i);
     const info=dayInfo(d);
     const cell=document.createElement('div');
-    cell.className='day '+cssClass(info)+(fmt(d)===todayIso?' today':'');
+    const isToday = fmt(d)===todayIso;
+    cell.className='day '+cssClass(info)+(isToday?' today':'');
     const infoHtml = (info.infos&&info.infos.length) ? info.infos.map(t=>`<span class="info">${t}</span>`).join('') : '';
-    cell.innerHTML = `<div class="dname">${DAYNAMES[i]}</div><div class="dnum">${d.getDate()}</div>${info.label?`<span class="lbl">${info.label}</span>`:''}${infoHtml}`;
+    cell.innerHTML = `<div class="dname">${DAYNAMES[i]}</div><div class="dnum">${d.getDate()}${isToday?'<span class="vandaag">VANDAAG</span>':''}</div>${info.label?`<span class="lbl">${info.label}</span>`:''}${infoHtml}`;
     days.appendChild(cell);
   }
   row.appendChild(days);
@@ -355,10 +392,10 @@ function jumpToToday(){
 /* ============ LOG ============ */
 const LOG = [
   {
-    date:'2026-07-05',
+    date:'2026-07-06',
     title:'Zomerplanning 2026',
     q:'Gezamenlijke planning van de zomervakantie, met eigen data los van de gewone weekregeling.',
-    a:'Mama reist met Robbe en Lore (5–15 juli). Bij papa (16–19 juli). Bij mama (20–23 juli). Papa reist met Robbe en Lore (24 juli–2 augustus). Bij mama, incl. turnkamp van Lore (3–14 augustus). Bij papa (15–16 augustus). Bij mama (17–23 augustus).'
+    a:'Bij papa tot en met 5 juli. Mama reist met Robbe en Lore (6–15 juli). Bij papa (16–19 juli). Bij mama (20–23 juli). Bij papa vanaf 24 juli; papa reist met Robbe en Lore vanaf 25 juli tot 2 augustus. Bij mama, incl. turnkamp van Lore (3–14 augustus). Bij papa (15–16 augustus). Bij mama (17–23 augustus).'
   },
   {
     date:'2026-12-21',
