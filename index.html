@@ -9,7 +9,8 @@
     --stijn:#dbeafe; --stijn-border:#2563eb; --stijn-text:#1e3a8a;
     --marlies:#fce7f3; --marlies-border:#db2777; --marlies-text:#831843;
     --marlies-gevraagd:#ec4899; --stijn-compensatie:#bfdbfe;
-    --vakantie:#bbf7d0; --vakantie-border:#15803d;
+    --stijn-afwijking:#1e3a8a; --stijn-afwijking-border:#1e40af;
+    --marlies-afwijking:#9d174d; --marlies-afwijking-border:#831843;
     --navy:#0f172a; --navy2:#111827; --purple:#7c3aed;
     --bg:#f8fafc; --card:#ffffff; --text:#1e293b; --muted:#64748b; --border:#e2e8f0;
   }
@@ -63,14 +64,16 @@
   .day .dname{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
   .day .dnum{font-weight:700;font-size:.95rem;}
   .day .lbl{display:block;margin-top:.2rem;font-size:.68rem;line-height:1.2;}
+  .day .info{display:block;margin-top:.15rem;font-size:.64rem;line-height:1.15;font-style:italic;opacity:.85;}
   .day.today{outline:2px solid var(--navy);outline-offset:-2px;}
 
   .day.stijn-normaal{background:var(--stijn);}
   .day.marlies-normaal{background:var(--marlies);}
   .day.stijn-compensatie{background:var(--stijn-compensatie);border-top:3px solid var(--stijn-border);border-bottom:3px solid var(--stijn-border);}
   .day.marlies-gevraagd{background:var(--marlies-gevraagd);color:#fff;border-top:3px solid var(--marlies-border);border-bottom:3px solid var(--marlies-border);}
-  .day.vakantie{background:var(--vakantie);border-top:3px solid var(--vakantie-border);border-bottom:3px solid var(--vakantie-border);}
-  .day.marlies-normaal .lbl,.day.vakantie .lbl{color:#334155;}
+  .day.stijn-afwijking{background:var(--stijn-afwijking);color:#fff;border-top:3px solid var(--stijn-afwijking-border);border-bottom:3px solid var(--stijn-afwijking-border);}
+  .day.marlies-afwijking{background:var(--marlies-afwijking);color:#fff;border-top:3px solid var(--marlies-afwijking-border);border-bottom:3px solid var(--marlies-afwijking-border);}
+  .day.marlies-normaal .lbl,.day.marlies-normaal .info{color:#334155;}
 
   #sentinel{height:40px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.85rem;}
 
@@ -118,12 +121,14 @@
       <div class="item"><span class="swatch" style="background:var(--marlies)"></span>Marlies (normaal)</div>
       <div class="item"><span class="swatch" style="background:var(--marlies-gevraagd)"></span>Marlies (gevraagd weekend)</div>
       <div class="item"><span class="swatch" style="background:var(--stijn-compensatie);border:2px solid var(--stijn-border)"></span>Stijn (compensatie weekend)</div>
-      <div class="item"><span class="swatch" style="background:var(--vakantie);border:2px solid var(--vakantie-border)"></span>Vakantie / afwijkende afspraak</div>
+      <div class="item"><span class="swatch" style="background:var(--stijn-afwijking)"></span>Stijn (afwijking van rotatie)</div>
+      <div class="item"><span class="swatch" style="background:var(--marlies-afwijking)"></span>Marlies (afwijking van rotatie)</div>
     </div>
 
     <div class="infobox">
       Basisregeling (ouderschapsovereenkomst 5/12/2025): <b>even week → Marlies</b>, <b>oneven week → Stijn</b>. Wissel op maandagochtend na school / 9u op schoolvrije dag.<br>
-      Vanaf <b>maandag 4 januari 2027</b> wordt dit omgedraaid: <b>even week → Stijn</b>, <b>oneven week → Marlies</b><span class="tag">nieuwe regeling</span>.
+      Vanaf <b>maandag 4 januari 2027</b> wordt dit omgedraaid: <b>even week → Stijn</b>, <b>oneven week → Marlies</b><span class="tag">nieuwe regeling</span>.<br>
+      Herfst- &amp; krokusverlof volgen een eigen splitsing (wissel op woensdagmiddag) volgens de ouderschapsovereenkomst — zie de betreffende weken hieronder. Reizen/kampen uit de zomerplanning staan als info-label, zonder de gewone beurtrol te wijzigen.
     </div>
 
     <div id="weeks"></div>
@@ -173,22 +178,43 @@ function showTab(name){
 const CUTOVER = new Date(2027,0,4); // maandag 4 jan 2027 — nieuwe regeling start
 
 // Uitzonderingen op de basisregel (chronologisch). Datums als 'YYYY-MM-DD' (inclusief).
+// type 'afwijking' = bewuste afwijking van de gewone rotatie (op vraag); 'normaal' = volgt gewoon
+// de bestaande contractuele regels (kerst/nieuwjaar/herfst/krokus), enkel de kleur van de "normale" ouder.
 const EXCEPTIONS = [
-  // Kerst 2026 — skivakantie St. Anton (op vraag van Stijn)
-  {start:'2026-12-21', end:'2026-12-21', who:'stijn', type:'vakantie', label:'🚂 Vertrek trein'},
-  {start:'2026-12-22', end:'2026-12-22', who:'stijn', type:'vakantie', label:'⛷️ St. Anton'},
-  {start:'2026-12-23', end:'2026-12-23', who:'stijn', type:'vakantie', label:'⛷️'},
-  {start:'2026-12-24', end:'2026-12-24', who:'stijn', type:'vakantie', label:'🎄 ½ dag ski'},
-  {start:'2026-12-25', end:'2026-12-25', who:'stijn', type:'vakantie', label:'🎅 Kerstdag'},
-  {start:'2026-12-26', end:'2026-12-26', who:'stijn', type:'vakantie', label:'⛷️'},
-  {start:'2026-12-27', end:'2026-12-27', who:'stijn', type:'vakantie', label:'🚂 Terug'},
-  {start:'2026-12-31', end:'2027-01-03', who:'marlies', type:'vakantie', label:'🥂 Oud &amp; nieuw'},
+  // Kerst 2026 — skivakantie St. Anton (op vraag van Stijn, afwijking van de gewone rotatie)
+  {start:'2026-12-21', end:'2026-12-21', who:'stijn', type:'afwijking', label:'🚂 Vertrek trein'},
+  {start:'2026-12-22', end:'2026-12-22', who:'stijn', type:'afwijking', label:'⛷️ St. Anton'},
+  {start:'2026-12-23', end:'2026-12-23', who:'stijn', type:'afwijking', label:'⛷️'},
+  {start:'2026-12-24', end:'2026-12-24', who:'stijn', type:'afwijking', label:'🎄 ½ dag ski'},
+  {start:'2026-12-25', end:'2026-12-25', who:'stijn', type:'afwijking', label:'🎅 Kerstdag'},
+  {start:'2026-12-26', end:'2026-12-26', who:'stijn', type:'afwijking', label:'⛷️'},
+  {start:'2026-12-27', end:'2026-12-27', who:'stijn', type:'afwijking', label:'🚂 Terug'},
+  // Oudjaar/nieuwjaar — normale contractuele regel voor even jaren (geen afwijking)
+  {start:'2026-12-31', end:'2027-01-03', who:'marlies', type:'normaal', label:'🥂 Oud &amp; nieuw'},
   // Weekendwissel jan 2027 (op vraag van Marlies)
   {start:'2027-01-15', end:'2027-01-17', who:'marlies', type:'gevraagd', label:'Gevraagd weekend'},
   {start:'2027-01-22', end:'2027-01-24', who:'stijn', type:'compensatie', label:'Compensatie'},
+  // Herfstvakantie 2026 (2 t.e.m. 8 nov): vrijdag vóór start (30/10) valt in even week → bij Marlies
+  // tot woensdagmiddag (4/11), pas nadien normale (reeds Stijn-)rotatie. Enkel ma-woe wijkt af van de basisregel.
+  {start:'2026-11-02', end:'2026-11-04', who:'marlies', type:'normaal', label:'Herfstvakantie-regel (tot woe 12u)'},
+  // Krokusvakantie 2027 (8 t.e.m. 14 feb): vrijdag vóór start (5/2) valt in oneven week (= Marlies,
+  // nieuwe regeling) → bij Marlies tot woensdagmiddag (10/2), pas nadien normale (Stijn-)rotatie.
+  {start:'2027-02-08', end:'2027-02-10', who:'marlies', type:'normaal', label:'Krokusvakantie-regel (tot woe 12u)'},
   // Weekendwissel juli 2027 (op vraag van Marlies)
   {start:'2027-07-02', end:'2027-07-04', who:'marlies', type:'gevraagd', label:'Gevraagd weekend'},
   {start:'2027-07-09', end:'2027-07-11', who:'stijn', type:'compensatie', label:'Compensatie'},
+];
+
+// Info-labels: wijzigen NIET wie de kinderen heeft, tonen enkel extra context (reizen, kampen, vakanties).
+const INFO_EVENTS = [
+  {start:'2026-07-07', end:'2026-07-15', label:'✈️ Mama, Robbe &amp; Lore op reis'},
+  {start:'2026-07-25', end:'2026-08-02', label:'✈️ Papa, Robbe &amp; Lore op reis'},
+  {start:'2026-08-08', end:'2026-08-13', label:'🤸 Lore op turnkamp'},
+  {start:'2026-08-08', end:'2026-08-16', label:'✈️ Papa op reis'},
+  {start:'2026-08-17', end:'2026-08-30', label:'🏕️ Lore op kamp'},
+  {start:'2026-08-18', end:'2026-08-28', label:'🏕️ Robbe op kamp'},
+  {start:'2026-11-02', end:'2026-11-08', label:'🍂 Herfstvakantie'},
+  {start:'2027-02-08', end:'2027-02-14', label:'💠 Krokusvakantie'},
 ];
 
 function fmt(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
@@ -212,16 +238,20 @@ function findException(iso){
   for(const ex of EXCEPTIONS){ if(iso>=ex.start && iso<=ex.end) return ex; }
   return null;
 }
+function findInfoEvents(iso){
+  return INFO_EVENTS.filter(ev=> iso>=ev.start && iso<=ev.end).map(ev=>ev.label);
+}
 function dayInfo(date){
   const iso=fmt(date);
   const ex=findException(iso);
-  if(ex) return {who:ex.who, type:ex.type, label:ex.label||''};
-  return {who:baseParent(date), type:'normaal', label:''};
+  const infos=findInfoEvents(iso);
+  if(ex) return {who:ex.who, type:ex.type, label:ex.label||'', infos};
+  return {who:baseParent(date), type:'normaal', label:'', infos};
 }
 function cssClass(info){
   if(info.type==='gevraagd') return info.who+'-gevraagd';
   if(info.type==='compensatie') return info.who+'-compensatie';
-  if(info.type==='vakantie') return 'vakantie';
+  if(info.type==='afwijking') return info.who+'-afwijking';
   return info.who+'-normaal';
 }
 
@@ -255,7 +285,8 @@ function renderWeek(monday){
     const info=dayInfo(d);
     const cell=document.createElement('div');
     cell.className='day '+cssClass(info)+(fmt(d)===todayIso?' today':'');
-    cell.innerHTML = `<div class="dname">${DAYNAMES[i]}</div><div class="dnum">${d.getDate()}</div>${info.label?`<span class="lbl">${info.label}</span>`:''}`;
+    const infoHtml = (info.infos&&info.infos.length) ? info.infos.map(t=>`<span class="info">${t}</span>`).join('') : '';
+    cell.innerHTML = `<div class="dname">${DAYNAMES[i]}</div><div class="dnum">${d.getDate()}</div>${info.label?`<span class="lbl">${info.label}</span>`:''}${infoHtml}`;
     days.appendChild(cell);
   }
   row.appendChild(days);
@@ -288,7 +319,13 @@ const LOG = [
     date:'2025-12-05',
     title:'Ondertekening ouderschapsovereenkomst',
     q:'Basisafspraak tussen Stijn en Marlies over verblijfsregeling, kerst/nieuwjaar, financiën en gezag.',
-    a:'Week-week-regeling: <b>even week bij Marlies</b>, <b>oneven week bij Stijn</b>, wissel maandagochtend na school / 9u op schoolvrije dag. Kerstavond/kerstdag en oudjaar/nieuwjaar volgens vaste beurtrol per even/oneven kalenderjaar.'
+    a:'Week-week-regeling: <b>even week bij Marlies</b>, <b>oneven week bij Stijn</b>, wissel maandagochtend na school / 9u op schoolvrije dag. Kerstavond/kerstdag en oudjaar/nieuwjaar volgens vaste beurtrol per even/oneven kalenderjaar. Herfst- en krokusverlof volgen een aparte splitsing met wissel op woensdagmiddag, afhankelijk van de week waarin de vrijdag vóór de vakantie valt.'
+  },
+  {
+    date:'2026-06-29',
+    title:'Zomerplanning 2026',
+    q:'Gezamenlijk overleg tussen Stijn en Marlies over reizen en kampen tijdens de zomervakantie 2026 — geen wijziging van de gewone week-week-rotatie, enkel planning van wie wanneer op reis/kamp is.',
+    a:'Afgesproken: Mama, Robbe &amp; Lore op reis (7–15 juli) · Papa, Robbe &amp; Lore op reis (25 juli–2 augustus) · Lore op turnkamp (8–13 augustus) · Papa op reis (8–16 augustus) · Lore op kamp (17–30 augustus) · Robbe op kamp (18–28 augustus). Deze periodes staan als info op de tijdlijn, zonder de normale beurtrol te wijzigen.'
   },
   {
     date:'2026-12-21',
