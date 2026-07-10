@@ -81,10 +81,19 @@
   .logentry .a{margin:0;font-size:.9rem;background:#f1f5f9;border-radius:8px;padding:.6rem .8rem;}
   .logentry .a b{color:var(--navy);}
   .logentry.voorstel{border-left-color:#f59e0b;background:#fffbeb;}
-  .logentry.voorstel .badge{display:inline-block;background:#f59e0b;color:#fff;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:.15rem .55rem;border-radius:6px;margin-bottom:.5rem;}
+  .logentry.voorstel .propbadge{display:inline-block;background:#f59e0b;color:#fff;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:.15rem .55rem;border-radius:6px;margin-bottom:.5rem;}
   .logentry.voorstel .optie{margin:0 0 .55rem;font-size:.9rem;background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:.6rem .8rem;}
-  .logentry.voorstel .optie:last-child{margin-bottom:0;}
   .logentry.voorstel .optie b{color:#92400e;}
+  /* mini-kalender in het log-voorstel — zelfde look als de tijdlijn, compacter */
+  .miniweeks{margin:.4rem 0 1rem;}
+  .miniweeks .weekrow{margin-bottom:.5rem;}
+  .miniweeks .weekhead{padding:.35rem .7rem;font-size:.7rem;}
+  .miniweeks .day{min-height:48px;padding:.35rem .3rem;font-size:.7rem;}
+  .miniweeks .day .dnum{font-size:.8rem;}
+  .miniweeks .day .dname{font-size:.6rem;}
+  .miniweeks .day .lbl{font-size:.58rem;}
+  .miniweeks .day .badge{font-size:.7rem;background:none;color:inherit;padding:0;margin:0 .1rem 0 0;text-transform:none;letter-spacing:0;}
+  .minigap{text-align:center;color:var(--muted);font-size:1rem;margin:.1rem 0 .55rem;letter-spacing:.3em;}
 
   .addnote{font-size:.82rem;color:var(--muted);text-align:center;margin-top:1rem;}
 
@@ -557,12 +566,85 @@ const LOG = [
     status:'voorstel',
     q:'Vraag van Stijn: van zaterdag 5 tot zaterdag 12 juni 2027 op fietsreis. Enkel het weekend van 5–6 juni valt in zijn week — de week van 7–13 juni is sowieso bij mama, en vanaf maandag 14 juni loopt de gewone regeling verder. Marlies zou dus alleen het weekend van 5–6 juni (eventueel al vanaf vrijdagavond 4 juni) overnemen.',
     options:[
-      {t:'Optie 1 — weekend voor weekend', d:'Marlies neemt het weekend van 4–6 juni, Stijn neemt in ruil het weekend van 25–27 juni (het eerstvolgende weekend van Marlies na de reis). Zelfde formule als de vorige wissels.'},
-      {t:'Optie 2 — aansluitend na terugkeer', d:'Marlies neemt het weekend van 4–6 juni; Stijn is zaterdag 12 juni terug en neemt de rest van dat weekend (za-avond 12 en zondag 13 juni) over. Kleinere ruil, maar meteen geregeld.'},
-      {t:'Optie 3 — combineren met de juli-wissel (minste wissels)', d:'Marlies neemt het weekend van 4–6 juni; de kinderen blijven dan aansluitend gewoon bij haar tot maandag 14 juni. In ruil vervalt het tegenweekend van 9–11 juli: Marlies houdt haar gevraagde weekend van 2–4 juli en de kinderen blijven de hele week van 5–11 juli bij haar. Netto evenwichtig, en twee overdrachten minder.'}
+      {t:'Optie 1 — weekend voor weekend', d:'Marlies neemt het weekend van 4–6 juni, Stijn neemt in ruil het weekend van 25–27 juni (het eerstvolgende weekend van Marlies na de reis). Zelfde formule als de vorige wissels.',
+        viz:{
+          weeks:['2027-05-31','2027-06-07','gap','2027-06-21'],
+          overrides:[
+            {start:'2027-06-04', end:'2027-06-06', who:'marlies', label:'Wissel'},
+            {start:'2027-06-25', end:'2027-06-27', who:'stijn', label:'Wissel terug'}
+          ],
+          info:[{start:'2027-06-05', end:'2027-06-12', icon:'🚴', title:'Fietsreis papa'}]
+        }},
+      {t:'Optie 2 — aansluitend na terugkeer', d:'Marlies neemt het weekend van 4–6 juni; Stijn is zaterdag 12 juni terug en neemt de rest van dat weekend (za-avond 12 en zondag 13 juni) over. Kleinere ruil, maar meteen geregeld.',
+        viz:{
+          weeks:['2027-05-31','2027-06-07'],
+          overrides:[
+            {start:'2027-06-04', end:'2027-06-06', who:'marlies', label:'Wissel'},
+            {start:'2027-06-12', end:'2027-06-12', who:'marlies', label:'🌙 ’s Avonds naar papa'},
+            {start:'2027-06-13', end:'2027-06-13', who:'stijn', label:'Wissel terug'}
+          ],
+          info:[{start:'2027-06-05', end:'2027-06-12', icon:'🚴', title:'Fietsreis papa'}]
+        }},
+      {t:'Optie 3 — combineren met de juli-wissel (minste wissels)', d:'Marlies neemt het weekend van 4–6 juni; de kinderen blijven dan aansluitend gewoon bij haar tot maandag 14 juni. In ruil vervalt het tegenweekend van 9–11 juli: Marlies houdt haar gevraagde weekend van 2–4 juli en de kinderen blijven de hele week van 5–11 juli bij haar. Netto evenwichtig, en twee overdrachten minder.',
+        viz:{
+          weeks:['2027-05-31','2027-06-07','gap','2027-06-28','2027-07-05'],
+          overrides:[
+            {start:'2027-06-04', end:'2027-06-06', who:'marlies', label:'Wissel'},
+            {start:'2027-07-09', end:'2027-07-11', who:'marlies', label:'Tegenweekend vervalt'}
+          ],
+          info:[{start:'2027-06-05', end:'2027-06-12', icon:'🚴', title:'Fietsreis papa'}]
+        }}
     ]
   },
 ];
+
+// Mini-kalender voor voorstellen: zelfde opbouw als renderWeek, maar met
+// tijdelijke overrides (het voorstel) bovenop de echte regeling. Wijzigt niets
+// aan de echte tijdlijn.
+function buildMiniWeeks(viz){
+  const cont=document.createElement('div');
+  cont.className='miniweeks';
+  for(const mStr of viz.weeks){
+    if(mStr==='gap'){
+      const g=document.createElement('div');
+      g.className='minigap';
+      g.textContent='· · ·';
+      cont.appendChild(g);
+      continue;
+    }
+    const monday=new Date(mStr+'T00:00:00');
+    const wk=isoWeekNum(monday);
+    const base=baseParent(monday);
+    const parity=(wk%2===0)?'EVEN':'ONEVEN';
+    const endDate=new Date(monday); endDate.setDate(endDate.getDate()+6);
+    const rangeLabel=monday.getDate()+' '+MAANDEN[monday.getMonth()]+' – '+endDate.getDate()+' '+MAANDEN[endDate.getMonth()];
+    const row=document.createElement('div');
+    row.className='weekrow';
+    const head=document.createElement('div');
+    head.className='weekhead';
+    head.innerHTML=`<span class="wk">Week ${wk} · ${rangeLabel}</span><span class="tag ${base}">${parity} · normaal ${base==='stijn'?'Stijn':'Marlies'}</span>`;
+    row.appendChild(head);
+    const days=document.createElement('div');
+    days.className='days';
+    for(let i=0;i<7;i++){
+      const dd=new Date(monday); dd.setDate(dd.getDate()+i);
+      const iso=fmt(dd);
+      let info=dayInfo(dd);
+      const ov=(viz.overrides||[]).find(o=> iso>=o.start && iso<=o.end);
+      if(ov) info={who:ov.who, afwijkend:ov.who!==baseParent(dd), label:ov.label||'', badges:info.badges};
+      const extra=(viz.info||[]).filter(ev=> iso>=ev.start && iso<=ev.end).map(ev=>({icon:ev.icon, title:ev.title}));
+      const badges=[...(info.badges||[]), ...extra];
+      const cell=document.createElement('div');
+      cell.className='day '+cssClass(info);
+      const badgeHtml=badges.length?`<div class="badges">${badges.map(b=>`<span class="badge" title="${b.title}">${b.icon}</span>`).join('')}</div>`:'';
+      cell.innerHTML=`<div class="dname">${DAYNAMES[i]}</div><div class="dnum">${dd.getDate()}</div>${info.label?`<span class="lbl">${info.label}</span>`:''}${badgeHtml}`;
+      days.appendChild(cell);
+    }
+    row.appendChild(days);
+    cont.appendChild(row);
+  }
+  return cont;
+}
 
 function renderLog(){
   const wrap=document.getElementById('logwrap');
@@ -573,15 +655,18 @@ function renderLog(){
     div.className='logentry'+(entry.status==='voorstel'?' voorstel':'');
     const d=new Date(entry.date+'T00:00:00');
     const dateLabel=d.getDate()+' '+MAANDEN[d.getMonth()]+' '+d.getFullYear();
-    let body='';
     if(entry.status==='voorstel'){
-      body='<div class="badge">Voorstel — nog te beslissen</div>';
-      body+=`<h3>${entry.title}</h3><p class="q">${entry.q}</p>`;
-      for(const o of (entry.options||[])) body+=`<p class="optie"><b>${o.t}:</b> ${o.d}</p>`;
+      div.innerHTML = `<div class="date">${dateLabel}</div><div class="propbadge">Voorstel — nog te beslissen</div><h3>${entry.title}</h3><p class="q">${entry.q}</p>`;
+      for(const o of (entry.options||[])){
+        const p=document.createElement('p');
+        p.className='optie';
+        p.innerHTML=`<b>${o.t}:</b> ${o.d}`;
+        div.appendChild(p);
+        if(o.viz) div.appendChild(buildMiniWeeks(o.viz));
+      }
     }else{
-      body=`<h3>${entry.title}</h3><p class="q">${entry.q}</p><p class="a">${entry.a}</p>`;
+      div.innerHTML = `<div class="date">${dateLabel}</div><h3>${entry.title}</h3><p class="q">${entry.q}</p><p class="a">${entry.a}</p>`;
     }
-    div.innerHTML = `<div class="date">${dateLabel}</div>`+body;
     wrap.appendChild(div);
   }
 }
