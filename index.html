@@ -86,13 +86,16 @@
   .logentry.voorstel .optie b{color:#92400e;}
   /* mini-kalender in het log-voorstel — zelfde look als de tijdlijn, compacter */
   .miniweeks{margin:.4rem 0 1rem;}
-  .miniweeks .weekrow{margin-bottom:.5rem;}
-  .miniweeks .weekhead{padding:.35rem .7rem;font-size:.7rem;}
-  .miniweeks .day{min-height:48px;padding:.35rem .3rem;font-size:.7rem;}
-  .miniweeks .day .dnum{font-size:.8rem;}
-  .miniweeks .day .dname{font-size:.6rem;}
-  .miniweeks .day .lbl{font-size:.58rem;}
-  .miniweeks .day .badge{font-size:.7rem;background:none;color:inherit;padding:0;margin:0 .1rem 0 0;text-transform:none;letter-spacing:0;}
+  .miniweeks .weekrow{margin-bottom:.35rem;border-radius:8px;}
+  .miniweeks .weekhead{padding:.25rem .6rem;font-size:.62rem;}
+  .miniweeks .weekhead .tag{font-size:.58rem;padding:.05rem .4rem;}
+  .miniweeks .day{min-height:30px;padding:.2rem .2rem;font-size:.6rem;}
+  .miniweeks .day .dnum{font-size:.68rem;}
+  .miniweeks .day .dname{font-size:.52rem;}
+  .miniweeks .day .lbl{font-size:.5rem;margin-top:.1rem;}
+  .miniweeks .day .badges{margin-top:.1rem;}
+  .miniweeks .day .badge{font-size:.6rem;background:none;color:inherit;padding:0;margin:0 .1rem 0 0;text-transform:none;letter-spacing:0;}
+  .miniweeks .day.stijn-afwijking,.miniweeks .day.marlies-afwijking{border-top-width:2px;border-bottom-width:2px;}
   .minigap{text-align:center;color:var(--muted);font-size:1rem;margin:.1rem 0 .55rem;letter-spacing:.3em;}
 
   .addnote{font-size:.82rem;color:var(--muted);text-align:center;margin-top:1rem;}
@@ -568,26 +571,16 @@ const LOG = [
     options:[
       {t:'Optie 1 — weekend voor weekend', d:'Marlies neemt het weekend van 4–6 juni, Stijn neemt in ruil het weekend van 25–27 juni (het eerstvolgende weekend van Marlies na de reis). Zelfde formule als de vorige wissels.',
         viz:{
-          weeks:['2027-05-31','2027-06-07','gap','2027-06-21'],
+          weeks:['2027-05-31','2027-06-07','2027-06-14','2027-06-21'],
           overrides:[
             {start:'2027-06-04', end:'2027-06-06', who:'marlies', label:'Wissel'},
             {start:'2027-06-25', end:'2027-06-27', who:'stijn', label:'Wissel terug'}
           ],
           info:[{start:'2027-06-05', end:'2027-06-12', icon:'🚴', title:'Fietsreis papa'}]
         }},
-      {t:'Optie 2 — aansluitend na terugkeer', d:'Marlies neemt het weekend van 4–6 juni; Stijn is zaterdag 12 juni terug en neemt de rest van dat weekend (za-avond 12 en zondag 13 juni) over. Kleinere ruil, maar meteen geregeld.',
+      {t:'Optie 2 — combineren met de juli-wissel (minste wissels)', d:'Marlies neemt het weekend van 4–6 juni; de kinderen blijven dan aansluitend gewoon bij haar tot maandag 14 juni. In ruil vervalt het tegenweekend van 9–11 juli: Marlies houdt haar gevraagde weekend van 2–4 juli en de kinderen blijven de hele week van 5–11 juli bij haar. Netto evenwichtig, en twee overdrachten minder.',
         viz:{
-          weeks:['2027-05-31','2027-06-07'],
-          overrides:[
-            {start:'2027-06-04', end:'2027-06-06', who:'marlies', label:'Wissel'},
-            {start:'2027-06-12', end:'2027-06-12', who:'marlies', label:'🌙 ’s Avonds naar papa'},
-            {start:'2027-06-13', end:'2027-06-13', who:'stijn', label:'Wissel terug'}
-          ],
-          info:[{start:'2027-06-05', end:'2027-06-12', icon:'🚴', title:'Fietsreis papa'}]
-        }},
-      {t:'Optie 3 — combineren met de juli-wissel (minste wissels)', d:'Marlies neemt het weekend van 4–6 juni; de kinderen blijven dan aansluitend gewoon bij haar tot maandag 14 juni. In ruil vervalt het tegenweekend van 9–11 juli: Marlies houdt haar gevraagde weekend van 2–4 juli en de kinderen blijven de hele week van 5–11 juli bij haar. Netto evenwichtig, en twee overdrachten minder.',
-        viz:{
-          weeks:['2027-05-31','2027-06-07','gap','2027-06-28','2027-07-05'],
+          weeks:['2027-05-31','2027-06-07','2027-06-14','2027-06-21','2027-06-28','2027-07-05'],
           overrides:[
             {start:'2027-06-04', end:'2027-06-06', who:'marlies', label:'Wissel'},
             {start:'2027-07-09', end:'2027-07-11', who:'marlies', label:'Tegenweekend vervalt'}
