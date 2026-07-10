@@ -217,14 +217,14 @@ const EXCEPTIONS = [
   {start:'2026-12-31', end:'2027-01-03', who:'marlies', label:'🥂 Oud &amp; nieuw'},
   // Weekendwissel jan 2027 (op vraag van Marlies)
   {start:'2027-01-15', end:'2027-01-17', who:'marlies', label:'Gevraagd weekend'},
-  {start:'2027-01-22', end:'2027-01-24', who:'stijn', label:'Compensatie'},
+  {start:'2027-01-22', end:'2027-01-24', who:'stijn', label:'Wissel terug'},
   // Herfstvakantie 2026 (2-8 nov): vrijdag vóór start (30/10) → even-rol → Marlies tot woe 12u
   {start:'2026-11-02', end:'2026-11-04', who:'marlies', label:'Herfstvakantie-regel (tot woe 12u)'},
   // Krokusvakantie 2027 (8-14 feb): vrijdag vóór start (5/2) → oneven-rol (nieuwe regeling = Marlies) tot woe 12u
   {start:'2027-02-08', end:'2027-02-10', who:'marlies', label:'Krokusvakantie-regel (tot woe 12u)'},
   // Weekendwissel juli 2027 (op vraag van Marlies)
   {start:'2027-07-02', end:'2027-07-04', who:'marlies', label:'Gevraagd weekend'},
-  {start:'2027-07-09', end:'2027-07-11', who:'stijn', label:'Compensatie'},
+  {start:'2027-07-09', end:'2027-07-11', who:'stijn', label:'Wissel terug'},
   // Kerst/nieuwjaar 2027 (oneven jaar): kerst → moeder, oudjaar/nieuwjaar → vader
   {start:'2027-12-24', end:'2027-12-24', who:'marlies', label:'🎄 Kerstavond'},
   {start:'2027-12-25', end:'2027-12-25', who:'marlies', label:'🎅 Kerstdag'},
@@ -578,12 +578,14 @@ const LOG = [
           ],
           info:[{start:'2027-06-05', end:'2027-06-12', icon:'🚴', title:'Fietsreis papa'}]
         }},
-      {t:'Optie 2 — combineren met de juli-wissel (minste wissels)', d:'Marlies neemt het weekend van 4–6 juni; de kinderen blijven dan aansluitend gewoon bij haar tot maandag 14 juni. In ruil vervalt het tegenweekend van 9–11 juli: Marlies houdt haar gevraagde weekend van 2–4 juli en de kinderen blijven de hele week van 5–11 juli bij haar. Netto evenwichtig, en twee overdrachten minder.',
+      {t:'Optie 2 — vrijdagwissels', d:'Van 4 juni tot 9 juli wisselen we telkens op vrijdag in plaats van maandag: naar mama op vr 4 juni, naar papa op za 12 juni (terug van reis), naar mama op za 19 juni, naar papa op vr 25 juni, naar mama op vr 2 juli (haar gevraagde weekend), en naar papa op vr 9 juli (het afgesproken tegenweekend, dat aansluit op zijn gewone week vanaf 12 juli). Nagerekend over 4 juni – 11 juli: elke ouder houdt exact evenveel dagen als in de huidige kalender (Stijn 17, Marlies 21), met evenveel overdrachten.',
         viz:{
           weeks:['2027-05-31','2027-06-07','2027-06-14','2027-06-21','2027-06-28','2027-07-05'],
           overrides:[
             {start:'2027-06-04', end:'2027-06-06', who:'marlies', label:'Wissel'},
-            {start:'2027-07-09', end:'2027-07-11', who:'marlies', label:'Tegenweekend vervalt'}
+            {start:'2027-06-12', end:'2027-06-13', who:'stijn', label:'Wissel'},
+            {start:'2027-06-19', end:'2027-06-20', who:'marlies', label:'Wissel'},
+            {start:'2027-06-25', end:'2027-06-27', who:'stijn', label:'Wissel'}
           ],
           info:[{start:'2027-06-05', end:'2027-06-12', icon:'🚴', title:'Fietsreis papa'}]
         }}
