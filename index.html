@@ -571,21 +571,23 @@ const LOG = [
     options:[
       {t:'Optie 1 — weekend voor weekend', d:'Marlies neemt het weekend van 4–6 juni, Stijn neemt in ruil het weekend van 25–27 juni (het eerstvolgende weekend van Marlies na de reis). Zelfde formule als de vorige wissels.',
         viz:{
-          weeks:['2027-05-31','2027-06-07','2027-06-14','2027-06-21'],
+          weeks:['2027-05-31','2027-06-07','2027-06-14','2027-06-21','2027-06-28','2027-07-05','2027-07-12'],
           overrides:[
             {start:'2027-06-04', end:'2027-06-06', who:'marlies', label:'Wissel'},
             {start:'2027-06-25', end:'2027-06-27', who:'stijn', label:'Wissel terug'}
           ],
           info:[{start:'2027-06-05', end:'2027-06-12', icon:'🚴', title:'Fietsreis papa'}]
         }},
-      {t:'Optie 2 — vrijdagwissels', d:'Van 4 juni tot 9 juli wisselen we telkens op vrijdag in plaats van maandag: naar mama op vr 4 juni, naar papa op za 12 juni (terug van reis), naar mama op za 19 juni, naar papa op vr 25 juni, naar mama op vr 2 juli (haar gevraagde weekend), en naar papa op vr 9 juli (het afgesproken tegenweekend, dat aansluit op zijn gewone week vanaf 12 juli). Nagerekend over 4 juni – 11 juli: elke ouder houdt exact evenveel dagen als in de huidige kalender (Stijn 17, Marlies 21), met evenveel overdrachten.',
+      {t:'Optie 2 — vrijdagwissels', d:'Van 4 juni tot 9 juli wisselen we telkens op vrijdag in plaats van maandag: naar mama op vrijdagavond 4 juni, naar papa op za 12 juni (terug van reis), naar mama op za 19 juni, naar papa op vrijdagavond 25 juni, naar mama op vr 2 juli (haar gevraagde weekend), en naar papa op vr 9 juli (het afgesproken tegenweekend, dat aansluit op zijn gewone week vanaf 12 juli). Nagerekend over 4 juni – 11 juli: elke ouder houdt exact evenveel dagen als in de huidige kalender (Stijn 17, Marlies 21), met evenveel overdrachten.',
         viz:{
-          weeks:['2027-05-31','2027-06-07','2027-06-14','2027-06-21','2027-06-28','2027-07-05'],
+          weeks:['2027-05-31','2027-06-07','2027-06-14','2027-06-21','2027-06-28','2027-07-05','2027-07-12'],
           overrides:[
-            {start:'2027-06-04', end:'2027-06-06', who:'marlies', label:'Wissel'},
+            {start:'2027-06-04', end:'2027-06-04', who:'stijn', label:'🌙 ’s Avonds naar mama'},
+            {start:'2027-06-05', end:'2027-06-06', who:'marlies', label:'Wissel'},
             {start:'2027-06-12', end:'2027-06-13', who:'stijn', label:'Wissel'},
             {start:'2027-06-19', end:'2027-06-20', who:'marlies', label:'Wissel'},
-            {start:'2027-06-25', end:'2027-06-27', who:'stijn', label:'Wissel'}
+            {start:'2027-06-25', end:'2027-06-25', who:'marlies', label:'🌙 ’s Avonds naar papa'},
+            {start:'2027-06-26', end:'2027-06-27', who:'stijn', label:'Wissel'}
           ],
           info:[{start:'2027-06-05', end:'2027-06-12', icon:'🚴', title:'Fietsreis papa'}]
         }}
