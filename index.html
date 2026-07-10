@@ -80,6 +80,11 @@
   .logentry .q b{color:var(--navy);}
   .logentry .a{margin:0;font-size:.9rem;background:#f1f5f9;border-radius:8px;padding:.6rem .8rem;}
   .logentry .a b{color:var(--navy);}
+  .logentry.voorstel{border-left-color:#f59e0b;background:#fffbeb;}
+  .logentry.voorstel .badge{display:inline-block;background:#f59e0b;color:#fff;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:.15rem .55rem;border-radius:6px;margin-bottom:.5rem;}
+  .logentry.voorstel .optie{margin:0 0 .55rem;font-size:.9rem;background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:.6rem .8rem;}
+  .logentry.voorstel .optie:last-child{margin-bottom:0;}
+  .logentry.voorstel .optie b{color:#92400e;}
 
   .addnote{font-size:.82rem;color:var(--muted);text-align:center;margin-top:1rem;}
 
@@ -546,6 +551,17 @@ const LOG = [
     q:'Vraag van Marlies: het weekend van 2–4 juli 2027.',
     a:'Gewisseld: Marlies neemt dit weekend, Stijn het weekend van 9–11 juli 2027.'
   },
+  {
+    date:'2027-06-05',
+    title:'Fietsreis papa — weekend van 5–6 juni 2027',
+    status:'voorstel',
+    q:'Vraag van Stijn: van zaterdag 5 tot zaterdag 12 juni 2027 op fietsreis. Enkel het weekend van 5–6 juni valt in zijn week — de week van 7–13 juni is sowieso bij mama, en vanaf maandag 14 juni loopt de gewone regeling verder. Marlies zou dus alleen het weekend van 5–6 juni (eventueel al vanaf vrijdagavond 4 juni) overnemen.',
+    options:[
+      {t:'Optie 1 — weekend voor weekend', d:'Marlies neemt het weekend van 4–6 juni, Stijn neemt in ruil het weekend van 25–27 juni (het eerstvolgende weekend van Marlies na de reis). Zelfde formule als de vorige wissels.'},
+      {t:'Optie 2 — aansluitend na terugkeer', d:'Marlies neemt het weekend van 4–6 juni; Stijn is zaterdag 12 juni terug en neemt de rest van dat weekend (za-avond 12 en zondag 13 juni) over. Kleinere ruil, maar meteen geregeld.'},
+      {t:'Optie 3 — combineren met de juli-wissel (minste wissels)', d:'Marlies neemt het weekend van 4–6 juni; de kinderen blijven dan aansluitend gewoon bij haar tot maandag 14 juni. In ruil vervalt het tegenweekend van 9–11 juli: Marlies houdt haar gevraagde weekend van 2–4 juli en de kinderen blijven de hele week van 5–11 juli bij haar. Netto evenwichtig, en twee overdrachten minder.'}
+    ]
+  },
 ];
 
 function renderLog(){
@@ -554,10 +570,18 @@ function renderLog(){
   const sorted=[...LOG].sort((a,b)=> b.date.localeCompare(a.date));
   for(const entry of sorted){
     const div=document.createElement('div');
-    div.className='logentry';
+    div.className='logentry'+(entry.status==='voorstel'?' voorstel':'');
     const d=new Date(entry.date+'T00:00:00');
     const dateLabel=d.getDate()+' '+MAANDEN[d.getMonth()]+' '+d.getFullYear();
-    div.innerHTML = `<div class="date">${dateLabel}</div><h3>${entry.title}</h3><p class="q">${entry.q}</p><p class="a">${entry.a}</p>`;
+    let body='';
+    if(entry.status==='voorstel'){
+      body='<div class="badge">Voorstel — nog te beslissen</div>';
+      body+=`<h3>${entry.title}</h3><p class="q">${entry.q}</p>`;
+      for(const o of (entry.options||[])) body+=`<p class="optie"><b>${o.t}:</b> ${o.d}</p>`;
+    }else{
+      body=`<h3>${entry.title}</h3><p class="q">${entry.q}</p><p class="a">${entry.a}</p>`;
+    }
+    div.innerHTML = `<div class="date">${dateLabel}</div>`+body;
     wrap.appendChild(div);
   }
 }
