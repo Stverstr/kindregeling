@@ -222,13 +222,11 @@ const EXCEPTIONS = [
   {start:'2026-11-02', end:'2026-11-04', who:'marlies', label:'Herfstvakantie-regel (tot woe 12u)'},
   // Krokusvakantie 2027 (8-14 feb): vrijdag vóór start (5/2) → oneven-rol (nieuwe regeling = Marlies) tot woe 12u
   {start:'2027-02-08', end:'2027-02-10', who:'marlies', label:'Krokusvakantie-regel (tot woe 12u)'},
-  // Fietsreis papa juni 2027 — vrijdagwissels (⏳ = provisoir: keuze van Stijn, nog te bevestigen door Marlies)
-  {start:'2027-06-04', end:'2027-06-04', who:'stijn', label:'🌙 ’s Avonds naar mama ⏳'},
-  {start:'2027-06-05', end:'2027-06-06', who:'marlies', label:'Wissel ⏳'},
-  {start:'2027-06-12', end:'2027-06-13', who:'stijn', label:'Wissel ⏳'},
-  {start:'2027-06-19', end:'2027-06-20', who:'marlies', label:'Wissel ⏳'},
-  {start:'2027-06-25', end:'2027-06-25', who:'marlies', label:'🌙 ’s Avonds naar papa ⏳'},
-  {start:'2027-06-26', end:'2027-06-27', who:'stijn', label:'Wissel ⏳'},
+  // Fietsreis papa juni 2027 — de bredere vrijdagwissels zijn niet bevestigd door Marlies en
+  // teruggedraaid (beslissing 4 aug 2026). Enkel het weekend 5-6 juni is bij mama (definitief);
+  // die 2 dagen staan nog te goed voor Stijn — wissel terug later in 2027, datum af te spreken.
+  {start:'2027-06-04', end:'2027-06-04', who:'stijn', label:'🌙 ’s Avonds naar mama'},
+  {start:'2027-06-05', end:'2027-06-06', who:'marlies', label:'Wissel (2 dagen te goed voor papa)'},
   // Weekendwissel juli 2027 (op vraag van Marlies)
   {start:'2027-07-02', end:'2027-07-04', who:'marlies', label:'Gevraagd weekend'},
   {start:'2027-07-09', end:'2027-07-11', who:'stijn', label:'Wissel terug'},
@@ -573,10 +571,10 @@ const LOG = [
   },
   {
     date:'2027-06-05',
-    title:'Fietsreis papa — vrijdagwissels juni 2027 ⏳',
-    q:'Vraag van Stijn: van zaterdag 5 tot zaterdag 12 juni 2027 op fietsreis. Het weekend van 5–6 juni valt in zijn week; de week van 7–13 juni is sowieso bij mama.',
-    a:'Gekozen — vrijdagwissels (⏳ provisoir, nog te bevestigen door Marlies): van 4 juni tot 9 juli wisselen we telkens op vrijdag in plaats van maandag. Naar mama op vrijdagavond 4 juni, naar papa op za 12 juni (terug van reis), naar mama op za 19 juni, naar papa op vrijdagavond 25 juni, naar mama op vr 2 juli (haar gevraagde weekend), en naar papa op vr 9 juli (het afgesproken tegenweekend, dat aansluit op zijn gewone week vanaf 12 juli). Elke ouder houdt exact evenveel dagen als voorheen (Stijn 17, Marlies 21 over 4 juni – 11 juli), met evenveel overdrachten. De dagen staan met ⏳ in de kalender tot de wissel bevestigd is.',
-    viz:{ weeks:['2027-05-31','2027-06-07','2027-06-14','2027-06-21','2027-06-28','2027-07-05','2027-07-12'] }
+    title:'Fietsreis papa — weekend 5–6 juni 2027 naar mama',
+    q:'Vraag van Stijn: van zaterdag 5 tot zaterdag 12 juni 2027 op fietsreis. Het weekend van 5–6 juni valt in zijn week; de week van 7–13 juni is sowieso bij mama. Eerder stond hier een voorstel met vrijdagwissels van 4 juni tot 9 juli.',
+    a:'Beslist op 4 augustus 2026: de voorgestelde vrijdagwissels zijn niet bevestigd door Marlies en zijn teruggedraaid — vanaf maandag 7 juni geldt gewoon weer de normale weekregeling. Enkel het weekend van 5–6 juni gaat naar mama; de kinderen gaan op vrijdagavond 4 juni al naar mama. Die 2 dagen staan daarmee nog te goed voor Stijn: een wissel terug volgt later in 2027, datum nog samen af te spreken.',
+    viz:{ weeks:['2027-05-31'] }
   },
 ];
 
