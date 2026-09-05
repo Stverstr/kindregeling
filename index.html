@@ -203,16 +203,21 @@ const EXCEPTIONS = [
   {start:'2026-08-03', end:'2026-08-14', who:'marlies'},
   {start:'2026-08-15', end:'2026-08-16', who:'stijn'},
   {start:'2026-08-17', end:'2026-08-23', who:'marlies'},
-  // Weekend voor de skivakantie: 18-20 december bij Marlies (afgesproken)
-  {start:'2026-12-18', end:'2026-12-20', who:'marlies'},
-  // Kerst 2026 — skivakantie St. Anton (op vraag van Stijn, eenmalig)
-  {start:'2026-12-21', end:'2026-12-21', who:'stijn', label:'🚂 Vertrek trein'},
-  {start:'2026-12-22', end:'2026-12-22', who:'stijn', label:'⛷️ St. Anton'},
+  // Kerst 2026 — skivakantie St. Anton, verschoven naar 18 t/m 27 december (afgesproken).
+  // 18-20 dec valt sowieso in de week van papa (oneven week, oude regeling), dus geen afwijking.
+  {start:'2026-12-18', end:'2026-12-18', who:'stijn', label:'🚂 Vertrek trein'},
+  {start:'2026-12-19', end:'2026-12-19', who:'stijn', label:'⛷️ St. Anton'},
+  {start:'2026-12-20', end:'2026-12-20', who:'stijn', label:'⛷️'},
+  {start:'2026-12-21', end:'2026-12-21', who:'stijn', label:'⛷️'},
+  {start:'2026-12-22', end:'2026-12-22', who:'stijn', label:'⛷️'},
   {start:'2026-12-23', end:'2026-12-23', who:'stijn', label:'⛷️'},
   {start:'2026-12-24', end:'2026-12-24', who:'stijn', label:'🎄 ½ dag ski'},
   {start:'2026-12-25', end:'2026-12-25', who:'stijn', label:'🎅 Kerstdag'},
   {start:'2026-12-26', end:'2026-12-26', who:'stijn', label:'⛷️'},
   {start:'2026-12-27', end:'2026-12-27', who:'stijn', label:'🚂 Terug'},
+  // Wissel terug: 28-30 december naar mama (papa kreeg 18-20 dec) — daarna loopt oud & nieuw
+  // en de oneven week van januari door, samen 2 weken bij mama (28 dec t/m 10 jan).
+  {start:'2026-12-28', end:'2026-12-30', who:'marlies', label:'Wissel terug'},
   // Oudjaar/nieuwjaar 2026 — contractuele regel per kalenderjaar (even jaar → moeder)
   {start:'2026-12-31', end:'2027-01-03', who:'marlies', label:'🥂 Oud &amp; nieuw'},
   // Weekendwissel jan 2027 (op vraag van Marlies)
@@ -541,15 +546,10 @@ const LOG = [
   },
   {
     date:'2026-12-18',
-    title:'Weekend voor de kerstvakantie',
-    q:'Afspraak rond het weekend net voor de skivakantie.',
-    a:'Het weekend van 18 tot en met 20 december 2026 zijn de kinderen bij mama.'
-  },
-  {
-    date:'2026-12-21',
-    title:'Skivakantie kerst 2026',
-    q:'Vraag van Stijn: samen met Robbe en Lore op skivakantie tijdens de kerstvakantie.',
-    a:'Stijn gaat met de kinderen skiën in St. Anton, van 21 tot en met 27 december 2026. Nadien loopt de gewone regeling verder.'
+    title:'Skivakantie kerst 2026 — nieuwe data (18–27 december)',
+    q:'Vraag van Stijn: samen met Robbe en Lore op skivakantie tijdens de kerstvakantie. De timing van de skireis is gewijzigd: de reis loopt nu van 18 tot en met 27 december 2026, in plaats van 21 tot en met 27 december. Eerder was afgesproken dat het weekend van 18–20 december bij mama zou zijn.',
+    a:'Robbe en Lore blijven bij papa van vrijdag 18 tot en met zondag 27 december 2026 (skireis St. Anton). Het weekend van 18–20 december gaat dus niet meer naar mama. Vanaf maandag 28 december zijn de kinderen twee weken bij mama: 28 december tot en met 10 januari 2027 (28–30 december als wissel terug, daarna oud &amp; nieuw en de oneven week van januari). Netto blijft alles in evenwicht: papa krijgt 3 dagen extra (18–20 december) en geeft er 3 terug (28–30 december). Vanaf maandag 11 januari 2027 loopt de gewone regeling weer.',
+    viz:{ weeks:['2026-12-14','2026-12-21','2026-12-28'] }
   },
   {
     date:'2027-01-04',
