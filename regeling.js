@@ -113,6 +113,7 @@ const EXCEPTIONS = [
 const INFO_EVENTS = [
   {start:'2026-08-08', end:'2026-08-13', icon:'🤸', title:'Lore op turnkamp'},
   {start:'2026-11-02', end:'2026-11-08', icon:'🍂', title:'Herfstvakantie'},
+  {start:'2026-12-21', end:'2027-01-03', icon:'🎄', title:'Kerstvakantie'},
   {start:'2027-02-08', end:'2027-02-14', icon:'💠', title:'Krokusvakantie'},
   {start:'2027-03-29', end:'2027-04-11', icon:'🐣', title:'Paasvakantie'},
   {start:'2027-06-05', end:'2027-06-12', icon:'🚴', title:'Fietsreis papa'},
